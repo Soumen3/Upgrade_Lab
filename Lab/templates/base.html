@@ -1,19 +1,32 @@
 {% load static tailwind_tags %}
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Upgrade Lab</title>
+	<link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
 	{% tailwind_css %}
 	{% block css %}{% endblock css %}
 </head>
 <body class="min-h-screen">
-
+	
+	{% include "components/navbar.html" %}
+  
 	{% block body  %}
 	{% endblock body  %}
 
+	<script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+	<script src="{% static "Lab\js\script.js" %}"></script>
+	<script>
+		// On page load or when changing themes, best to add inline in `head` to avoid FOUC
+		if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+			document.documentElement.classList.add('dark');
+		} else {
+			document.documentElement.classList.remove('dark')
+		}
+	</script>
 	{% block js %}{% endblock js %}
 </body>
 </html>

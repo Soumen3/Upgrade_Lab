@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'Lab',
+    'authenticate',
 	'tailwind',
 	'theme',
 	'django_browser_reload'
@@ -63,7 +64,7 @@ ROOT_URLCONF = 'Upgrade_Lab.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

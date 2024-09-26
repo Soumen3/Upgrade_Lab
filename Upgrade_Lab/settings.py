@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 	'Lab',
     'authenticate',
+    'coding',
 	'tailwind',
 	'theme',
 	'django_browser_reload'

@@ -37,9 +37,14 @@
             });
         </script>
 
+
         {% if result %}
-            <h3>Result: {{ result }}</h3>
+            <h3>Output:</h3>
+            <pre>{{ result }}</pre>
+            <p>Runtime: {{ runtime }} seconds</p>
+            <p>Memory: {{ memory }} KB</p>
         {% endif %}
+
     </div>
 
 {% endblock body %}

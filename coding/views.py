@@ -27,11 +27,17 @@ def problem_detail_view(request, pk):
 
     if request.method == 'POST':
         code = request.POST.get('code')
-
+        language = "python3"  # Assume the language is python
+        input_data = problem.sample_input
         # Assume you have a function to run the code and evaluate it
-        result = run_code_and_evaluate(problem, code)
+        result = run_code_and_evaluate(code, language, input_data)
+        print(result)
+        
+        context['problem'] = problem
+        context['result'] = result.get('output', 'Error running code')
+        context['runtime'] = result.get('cpuTime', 'N/A')
+        context['memory'] = result.get('memory', 'N/A')
 
-        context = {'problem': problem, 'result': result}
         return render(request, 'coding/problem_detail.html', context)
 
     context['problem'] = problem

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+    <div class=" h-screen dark:bg-gray-900 dark:text-white">
+        <h1>Problem List</h1>
+
+        <form method="GET">
+            <select name="difficulty" class="dark:bg-gray-700 dark:text-white">
+                <option value="">All</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+            <input type="text" name="tag" placeholder="Tag" class="dark:bg-gray-700 dark:text-white" />
+            <button type="submit" 
+                class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+            >Filter</button>
+        </form>
+
+        <ul class="max-w-md divide-y divide-gray-200 dark:divide-gray-700">
+            {% for problem in problems %}
+                <li class="pb-3 sm:pb-4 flex justify-between">
+                    <a href="{% url 'problem_detail' problem.id %}">{{ problem.title }}</a>
+                    <span class="
+                        text-xs font-medium me-2 px-2.5 py-0.5 rounded 
+                        {% if problem.difficulty_level == 'easy' %}
+                            bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300
+                        {% elif problem.difficulty_level == 'medium' %}
+                            bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300
+                        {% elif problem.difficulty_level == 'hard' %}
+                            bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300
+                        {% endif %}
+                    ">
+                {{ problem.difficulty_level }}
+            </span>
+                </li>
+            {% empty %}
+                <li>No problems available.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+{% endblock body %}

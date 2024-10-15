@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block body %}
+    <div class="bg-gray-300 dark:text-white dark:bg-gray-800 h-screen">
+        <p class="text text-center text-lg dark:text-white">Repository List</p>
+        <ul>
+            {% for repository in repositories %}
+                <li><a href="{% url 'repository_detail' repository.pk %}">{{ repository.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock body %}

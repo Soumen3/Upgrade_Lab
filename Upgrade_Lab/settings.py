@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'coding',
 	'tailwind',
 	'theme',
-	'django_browser_reload'
+	'django_browser_reload',
+    'vcs',
 ]
 
 TAILWIND_APP_NAME = 'theme'
@@ -97,7 +98,6 @@ DATABASES = {
     }
 }
 
-print(DATABASES)
 
 
 # Password validation

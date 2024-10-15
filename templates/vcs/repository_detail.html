@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ repository.name }}</title>
+</head>
+<body>
+    <h1>{{ repository.name }}</h1>
+    <p>{{ repository.description }}</p>
+    <h2>Commits</h2>
+    <ul>
+        {% for commit in repository.commit_set.all %}
+            <li>{{ commit.message }} by {{ commit.author.username }} on {{ commit.created_at }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

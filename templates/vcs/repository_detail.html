@@ -1,18 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ repository.name }}</title>
-</head>
-<body>
-    <h1>{{ repository.name }}</h1>
-    <p>{{ repository.description }}</p>
-    <h2>Commits</h2>
-    <ul>
-        {% for commit in repository.commit_set.all %}
-            <li>{{ commit.message }} by {{ commit.author.username }} on {{ commit.created_at }}</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+    <div class="bg-gray-300 dark:text-white dark:bg-gray-800 h-screen">
+        <p class="text-3xl dark:text-white">{{ repository.name }}</p>
+        <p class="dark:text-white">{{ repository.description }}</p>
+        <p class="dark:text-white">Owner: {{ repository.owner.username }}</p>
+        <p class="dark:text-white">Created at: {{ repository.created_at }}</p>
+        <h2 class="dark:text-white">Files</h2>
+        <ul>
+            {% for file in files %}
+            <li class="dark:text-white">{{ file.path }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock body %}

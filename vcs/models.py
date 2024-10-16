@@ -21,3 +21,11 @@ class Commit(models.Model):
 
     def __str__(self):
         return f"{self.message} - {self.author.username}"
+
+class RepositoryFile(models.Model):
+    repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='repositories/')
+    path = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.path

@@ -4,10 +4,8 @@ from django.conf import settings
 from .models import Repository, RepositoryFile
 from .form import RepositoryUploadForm
 import zipfile
-import os
 from pathlib import Path
 from django.core.files.base import ContentFile
-
 
 @login_required
 def repository_list(request):
@@ -33,28 +31,24 @@ def upload_repository(request):
             repository = Repository(name=name, description=description, owner=request.user)
             repository.save()
 
-            # Extract the zip file and save the files to the local storage
+            # Extract the zip file and save the files to S3
             with zipfile.ZipFile(file, 'r') as zip_ref:
                 for zip_info in zip_ref.infolist():
                     if not zip_info.is_dir():
-                        # Create the full path for the file
-                        full_path = Path(settings.MEDIA_ROOT) / 'repositories' / str(repository.owner) / str(repository.id) / zip_info.filename
-                        full_path.parent.mkdir(parents=True, exist_ok=True)  # Create directories if they don't exist
-
                         # Extract the file content
                         extracted_file = zip_ref.read(zip_info)
-                        with open(full_path, 'wb') as f:
-                            f.write(extracted_file)
+                        s3_file = ContentFile(extracted_file)
+                        s3_file.name = f'{repository.owner}/{repository.id}/{zip_info.filename}'
 
                         # Save the file information to the database
                         RepositoryFile.objects.create(
                             repository=repository,
-                            file=full_path.relative_to(settings.MEDIA_ROOT).as_posix(),
+                            file=s3_file,
                             path=zip_info.filename
                         )
 
             return redirect('repository_list')
-
-    form = RepositoryUploadForm()
+    else:
+        form = RepositoryUploadForm()
 
     return render(request, 'vcs/upload_repository.html', {'form': form})

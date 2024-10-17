@@ -24,8 +24,8 @@ class Commit(models.Model):
 
 class RepositoryFile(models.Model):
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
-    file = models.FileField(upload_to='repositories/')
-    path = models.CharField(max_length=255)
+    file = models.FileField(upload_to='repositories/', max_length=1000)
+    path = models.CharField(max_length=1000)
 
     def __str__(self):
         return self.path

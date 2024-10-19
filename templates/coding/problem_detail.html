@@ -39,10 +39,6 @@
             >Submit</button>
         </form>
 
-        <pre>
-{{ code_snippets.code }}
-        </pre>
-
         <script>
             var editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
                 lineNumbers: true,
@@ -73,6 +69,13 @@
                     </div>  
                     {% endfor %}
                 </div>
+        {% endif %}
+        {% if summary %}
+            <h3>Summary:</h3>
+            <div class="summary">
+                <p>Time: {{ summary.average_execution_time }}</p>
+                <p>Memory: {{ summary.average_memory_used }}</p>
+            </div>
         {% endif %}
 
     </div>

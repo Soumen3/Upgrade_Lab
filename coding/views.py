@@ -43,10 +43,19 @@ def problem_detail_view(request, pk):
         function_name = config("LAMBDA_COMPILER_FUNCTION")
         result = invoke_lambda_function(function_name, code, input_data, output_data)
 
-        # print("Result: ", json.loads((result['body'])))
+        print("Result: ", json.loads((result['body']))['results'])
+        results = json.loads((result['body']))['results']
+        summary = json.loads((result['body']))['summary']
 
         if result['statusCode'] == 200:
-            context['result'] = json.loads((result['body']))
+            context['result'] = results
+
+        average_execution_time_ms = summary['average_execution_time']
+        average_execution_time_s = average_execution_time_ms / 1000.0
+        summary['average_execution_time'] = f"{average_execution_time_s:.5f} seconds"
+
+        context['summary'] = summary
+        print(summary['average_execution_time'])
 
 
     context['problem'] = problem

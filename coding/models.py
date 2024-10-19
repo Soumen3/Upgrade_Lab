@@ -21,8 +21,8 @@ class Problem(models.Model):
 
 class TestCase(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='test_cases')
-    input_data = models.TextField()
-    expected_output = models.TextField()
+    input_data = models.JSONField()
+    expected_output = models.JSONField()
 
     def __str__(self):
         return f"Test Case for {self.problem.title}"

@@ -1,8 +1,10 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Problem, TestCase, CodeSnippet
-from .utils import invoke_lambda_function
+from .utils import invoke_lambda_function, generate_code_snippet
+from .forms import ProblemForm, TestCaseForm
 import json
 from decouple import config
+from django.contrib import messages
 
 
 # Create your views here.
@@ -62,7 +64,38 @@ def problem_detail_view(request, pk):
     code_snippets = CodeSnippet.objects.get(problem=problem)
     context['code_snippets'] = code_snippets
 
-
-    
-
     return render(request, 'coding/problem_detail.html', context)
+
+
+def post_problems(request):
+    if request.method == 'POST':
+        print("POST request received")
+        problem_form = ProblemForm(request.POST)
+        testcase_form = TestCaseForm(request.POST)
+
+        if problem_form.is_valid() and testcase_form.is_valid():
+            if request.user.groups.filter(name='problems_manager').exists():
+                problem = problem_form.save()
+                testcase = testcase_form.save(commit=False)
+                testcase.problem = problem
+                testcase.save()
+                code_snippet = generate_code_snippet(problem_form.cleaned_data['sample_input'])
+                CodeSnippet.objects.create(problem=problem, language=code_snippet[1], code=code_snippet[0])
+                messages.success(request, 'Problem posted successfully!')
+                return redirect('post_problem')
+            else:
+                print("User does not have permission to post problems")
+                messages.error(request, 'You do not have permission to post problems.')
+        else:
+            print("Form is invalid")
+            messages.error(request, 'Error postin the problem! Invalid form data.')
+
+    else:
+        problem_form = ProblemForm()
+        testcase_form = TestCaseForm()
+
+    context = {
+        'problem_form': problem_form,
+        'testcase_form': testcase_form,
+    }
+    return render(request, 'coding/post_problem.html', context)

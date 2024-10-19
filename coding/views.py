@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Problem, TestCase
+from .models import Problem, TestCase, CodeSnippet
 from .utils import invoke_lambda_function
 import json
 from decouple import config
@@ -50,4 +50,10 @@ def problem_detail_view(request, pk):
 
 
     context['problem'] = problem
+    code_snippets = CodeSnippet.objects.get(problem=problem)
+    context['code_snippets'] = code_snippets
+
+
+    
+
     return render(request, 'coding/problem_detail.html', context)

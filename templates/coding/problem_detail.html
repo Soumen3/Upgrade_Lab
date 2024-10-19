@@ -10,16 +10,26 @@
 {% endblock css %}
 
 {% block body %}
-    <div class="bg-gray-300 dark:text-white dark:bg-gray-800 h-screen">
-        <h1>{{ problem.title }}</h1>
+    <div class="bg-gray-300 dark:text-white dark:bg-gray-800 min-h-screen">
+        <p>Title: {{ problem.title }}</p>
 
-        <p>{{ problem.problem_statement }}</p>
+        <pre>Description: {{ problem.description }}</pre>
 
         <h3>Sample Input</h3>
-        <pre>{{ problem.sample_input }}</pre>
+        <p>
+            {% if problem.sample_input %}
+                {% for var, val in problem.sample_input.0.items %}
+                    <p>{{var}}:{{val}}</p>
+                {% endfor %}
+            {% endif %}
+        </p>
 
         <h3>Sample Output</h3>
-        <pre>{{ problem.sample_output }}</pre>
+        <p>
+            {% if problem.sample_output %}
+                {{ problem.sample_output.0 }}
+            {% endif %}
+        </p>
 
         <form method="POST">
             {% csrf_token %}
@@ -39,10 +49,26 @@
 
 
         {% if result %}
-            <h3>Output:</h3>
-            <pre>{{ result }}</pre>
-            <p>Runtime: {{ runtime }} seconds</p>
-            <p>Memory: {{ memory }} KB</p>
+            <h3>Public Test Cases:</h3>
+            <div class="results flex flex-wrap gap-2">
+                {% for ans in result %}
+                    <div class="result border-2 flex gap-4 p-2 border-gray-700 dark:border-gray-50">
+                        <div class="arguments">
+                            {% for var, val in ans.input_set.items %}
+                                <p>{{var}}: {{ val }}</p>
+                            {% endfor %}
+                        </div>
+                        <p>Your Output: {{ ans.actual_output }}</p>
+                        <p>Expected Output: {{ ans.expected_output }}</p>
+                        {% if ans.is_match %}
+                            ✅
+                        {% else %}
+                            ❌
+                        {% endif %}
+                        <hr>
+                    </div>  
+                    {% endfor %}
+                </div>
         {% endif %}
 
     </div>

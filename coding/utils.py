@@ -1,29 +1,63 @@
-import requests 
+import boto3
 import json
-import environ
 
-env= environ.Env()
-environ.Env.read_env()
-
-def run_code_and_evaluate(code, language, input_data):
-    # client_id = env('CLIENT_ID')
-    # client_secret = env('CLIENT_SECRET')
-    client_id = "d6c0be2fc79d23f0ced828fbbc91fa09"
-    client_secret = "28d0f42703b4de51df171ae4a516f8e0b44ea55271041675be9196a68a6b3d43"
-    endpoint = 'https://api.jdoodle.com/v1/execute'
-    print("code",code)
+def invoke_lambda_function(function_name, code, input_sets, expected_outputs=None):
+    # Create a boto3 client for Lambda
+    lambda_client = boto3.client('lambda')
     
+    # Prepare the payload with multiple input sets
     payload = {
-        'clientId': client_id,
-        'clientSecret': client_secret,
-        'script': code,
-        'language': language,  # For example: 'python3', 'cpp', 'java'
-        'versionIndex': '3',  # Version index for the specific language
-        'stdin': input_data  # Input for the program (if needed)
+        'code': code,
+        'input_sets': input_sets,
+        'expected_outputs': expected_outputs
     }
     
-    # Send the POST request to the JDoodle API
-    response = requests.post(endpoint, json=payload)
+    # Invoke the Lambda function
+    try:
+        response = lambda_client.invoke(
+            FunctionName=function_name,  # The name of the Lambda function
+            InvocationType='RequestResponse',  # Synchronous invocation
+            Payload=json.dumps(payload)  # Convert payload to JSON string
+        )
+        
+        # Read and parse the response
+        response_payload = response['Payload'].read()
+        result = json.loads(response_payload)
+        
+        return result
 
-    # Return the result from the API
-    return response.json()
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'message': 'Error invoking Lambda function',
+            'details': str(e)
+        }
+
+# Example usage
+if __name__ == "__main__":
+    # Lambda function name
+    function_name = 'test-function'
+    
+    # Code to be executed by the Lambda function
+    code = """
+def Solution(a, b):
+    return a + b
+"""
+    
+    # Multiple input sets to pass to the 'run' function
+    input_sets = [
+        {'a': 5, 'b': 3},
+        {'a': 10, 'b': 15},
+        {'a': -3, 'b': 7}
+    ]
+
+    # Expected outputs for each input set
+    expected_outputs = [8, 25, 4]
+
+    # Invoke the Lambda function using boto3
+    result = invoke_lambda_function(function_name, code, input_sets, expected_outputs)
+
+    # Print the result
+    print("Lambda Response:", json.dumps(result, indent=4))
+
+    print("Result: ", json.loads((result['body'])))

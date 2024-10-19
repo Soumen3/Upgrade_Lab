@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Problem, TestCase, Submission, UserProfile
+from .models import Problem, TestCase, Submission, UserProfile, CodeSnippet
 
 # Register your models here.
 
@@ -18,3 +18,7 @@ class SubmissionAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'problems_solved', 'ranking')
+
+@admin.register(CodeSnippet)
+class CodeSnippetAdmin(admin.ModelAdmin):
+    list_display = ('problem', 'language', 'code')

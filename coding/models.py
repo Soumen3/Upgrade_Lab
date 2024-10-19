@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import JSONField
+
+
 # Create your models here.
 
 class Problem(models.Model):
@@ -9,9 +12,8 @@ class Problem(models.Model):
         max_length=50, 
         choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')]
     )
-    problem_statement = models.TextField()
-    sample_input = models.TextField()
-    sample_output = models.TextField()
+    sample_input = models.JSONField()
+    sample_output = models.JSONField()
     tags = models.CharField(max_length=200, help_text="Comma-separated tags")
 
     def __str__(self):
@@ -24,6 +26,14 @@ class TestCase(models.Model):
 
     def __str__(self):
         return f"Test Case for {self.problem.title}"
+    
+class CodeSnippet(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='code_snippets')
+    language = models.CharField(max_length=50)
+    code = models.TextField()
+
+    def __str__(self):
+        return f"Code Snippet for {self.problem.title} in {self.language}"
 
 class Submission(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -49,3 +59,5 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+

@@ -33,8 +33,11 @@
 
         <form method="POST">
             {% csrf_token %}
-            <textarea  id="code-editor" name="code" rows="10" cols="80" placeholder="Write your solution here...">{{ code_snippets.code }}</textarea>
-            <button type="submit" 
+            <textarea  id="code-editor" name="code" rows="10" cols="80" placeholder="Write your solution here...">{{ code|default:code_snippets.code }}</textarea>
+            <button type="submit" name="action" value="run"
+                class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+            >Run</button>
+            <button type="submit" name="action" value="submit"
                 class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
             >Submit</button>
         </form>
@@ -77,7 +80,23 @@
                 <p>Memory: {{ summary.average_memory_used }}</p>
             </div>
         {% endif %}
-
+        {% if all_results %}
+            <h3>Test Case Results:</h3>
+            <div class="test-case-results">
+                {% for test_case_result in all_results %}
+                    <div class="test-case-result">
+                        <p>Input: {{ test_case_result.input_data }}</p>
+                        <p>Expected Output: {{ test_case_result.expected_output }}</p>
+                        <p>Actual Output: {{ test_case_result.actual_output }}</p>
+                        {% if test_case_result.is_match %}
+                            <p>Status: ✅</p>
+                        {% else %}
+                            <p>Status: ❌</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
 {% endblock body %}

@@ -71,21 +71,3 @@ def Solution(a, b):
 
 
 
-# Generate code snippets for the user post problem:
-
-def generate_python_code(inputs):
-    # Generate the Python code snippet based on the input data
-    code = f"""
-def Solution({', '.join(inputs[0].keys())}):
-    # Write your code here
-    
-"""
-    return code
-
-def generate_code_snippet(inputs, language="python3"):
-    # Generate the code snippet based on the input data
-    if language == "python3":
-        code = generate_python_code(inputs)
-    else:
-        pass  # Add support for other languages here
-    return (code, language)

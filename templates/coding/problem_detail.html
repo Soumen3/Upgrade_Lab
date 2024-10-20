@@ -70,9 +70,10 @@
                         {% endif %}
                         <hr>
                     </div>  
-                    {% endfor %}
-                </div>
+                {% endfor %}
+            </div>
         {% endif %}
+
         {% if summary %}
             <h3>Summary:</h3>
             <div class="summary">
@@ -80,12 +81,19 @@
                 <p>Memory: {{ summary.average_memory_used }}</p>
             </div>
         {% endif %}
+
         {% if all_results %}
             <h3>Test Case Results:</h3>
-            <div class="test-case-results">
+            <div class="test-case-results border-2 p-1 flex gap-2" style="width: fit-content;">
                 {% for test_case_result in all_results %}
-                    <div class="test-case-result">
-                        <p>Input: {{ test_case_result.input_data }}</p>
+                    <div class="test-case-result border-2 p-2 gap-3 w">
+                        <p>Input: 
+                            <div class="arguments">
+                                {% for var, val in test_case_result.input_set.items %}
+                                    <p>{{var}}: {{val}}</p>
+                                {% endfor %}
+                            </div>
+                        </p>
                         <p>Expected Output: {{ test_case_result.expected_output }}</p>
                         <p>Actual Output: {{ test_case_result.actual_output }}</p>
                         {% if test_case_result.is_match %}
@@ -95,6 +103,12 @@
                         {% endif %}
                     </div>
                 {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if error %}
+            <div class="error">
+                <pre>{{ error }}</pre>
             </div>
         {% endif %}
     </div>

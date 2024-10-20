@@ -56,6 +56,8 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     problems_solved = models.PositiveIntegerField(default=0)
     ranking = models.PositiveIntegerField(default=0)
+    points = models.PositiveIntegerField(default=0)
+    solved_problems = models.ManyToManyField(Problem, related_name='solved_by', blank=True)
 
     def __str__(self):
         return self.user.username

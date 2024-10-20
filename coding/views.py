@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Problem, TestCase, CodeSnippet, Submission
-from .utils import invoke_lambda_function, generate_code_snippet
+from .utilities import generate_code_snippet, create_or_update_user_profile, handle_run_action, handle_submit_action
 from .forms import ProblemForm, TestCaseForm
 import json
 from decouple import config
@@ -42,67 +42,26 @@ def problem_detail_view(request, pk):
         context['code'] = code
 
         if action == 'run':
-            # Invoke the Lambda function for running the code
-            function_name = config("LAMBDA_COMPILER_FUNCTION")
-            result = invoke_lambda_function(function_name, code, input_data, output_data)
-
-            results = json.loads((result['body']))['results']
-            summary = json.loads((result['body']))['summary']
-
-            if result['statusCode'] == 200:
-                context['result'] = results
-
-            average_execution_time_ms = summary['average_execution_time']
-            average_execution_time_s = average_execution_time_ms / 1000.0
-            summary['average_execution_time'] = f"{average_execution_time_s:.5f} seconds"
-
-            context['summary'] = summary
+            run_context = handle_run_action(code, input_data, output_data)
+            context.update(run_context)
 
         elif action == 'submit':
-            # Test the code against the single test case
-            test_case = get_object_or_404(TestCase, problem=problem)
+            submit_context = handle_submit_action(request.user, problem, code)
+            context.update(submit_context)
 
-            input_data = test_case.input_data
-            expected_output = test_case.expected_output
-
-            function_name = config("LAMBDA_COMPILER_FUNCTION")
-            result = invoke_lambda_function(function_name, code, input_data, expected_output)
-
-            results = json.loads((result['body']))['results']
-            summary = json.loads((result['body']))['summary']
-
-
-            print(results)
-
-            overall_status = 'correct' if all(r['is_match'] for r in results) else 'wrong'
-
-            total_execution_time = sum(r['execution_time'] for r in results)
-            total_memory_used = sum(r['memory_used'] for r in results)
-            average_execution_time = round(total_execution_time / len(results), 5)
-            average_memory_used = total_memory_used / len(results)
-
-            # Get or create the submission
-            submission, created = Submission.objects.get_or_create(
-                user=request.user,
-                problem=problem,
-                defaults={'code': code}
-            )
-
-            # Update the submission fields
-            submission.code = code
-            submission.status = overall_status
-            submission.runtime = average_execution_time
-            submission.memory = average_memory_used
-            submission.submission_time = timezone.now()  # Update the submission time
-            submission.save()
-
-            context['submission'] = submission
-            context['all_results'] = results
-
+            # create or update userProfile
+            if context['overall_status'] == 'correct':
+                user_profile=create_or_update_user_profile(request, problem)
+                if user_profile:
+                    messages.success(request, 'User Profile Updatd Successfully!')
+            else:
+                messages.error(request, 'Wrong Answer!')
+            
 
     context['problem'] = problem
     if Submission.objects.filter(user=request.user, problem=problem):
         code_snippets = Submission.objects.get(user=request.user, problem=problem)
+        
     else:
         code_snippets = CodeSnippet.objects.get(problem=problem)
     context['code_snippets'] = code_snippets
@@ -111,6 +70,7 @@ def problem_detail_view(request, pk):
 
 
 def post_problems(request):
+
     if request.method == 'POST':
         print("POST request received")
         problem_form = ProblemForm(request.POST)
@@ -142,3 +102,5 @@ def post_problems(request):
         'testcase_form': testcase_form,
     }
     return render(request, 'coding/post_problem.html', context)
+
+

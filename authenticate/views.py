@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .forms import RegisterForm, LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def user_signup(request):
@@ -29,6 +30,7 @@ def user_login(request):
 
             if user is not None:
                 login(request, user)
+                messages.success(request, 'User logged in successfully')
                 return redirect('home')
             else:
                 messages.info(request, 'Username or password is incorrect')
@@ -36,6 +38,8 @@ def user_login(request):
     context['form']= LoginForm()
     return render(request, 'authenticate/user_login.html', context)
 
+@login_required
 def user_logout(request):
     logout(request)
+    messages.info(request, 'User logged out successfully')
     return redirect('user_login')

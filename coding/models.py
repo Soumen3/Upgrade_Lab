@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import JSONField
-
+from django.utils import timezone
 
 # Create your models here.
 
@@ -39,7 +39,7 @@ class Submission(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     code = models.TextField()
-    submission_time = models.DateTimeField(auto_now_add=True)
+    submission_time = models.DateTimeField(default=timezone.now)
     status = models.CharField(
         max_length=50, 
         choices=[('correct', 'Correct'), ('wrong', 'Wrong Answer'), ('error', 'Runtime Error')]

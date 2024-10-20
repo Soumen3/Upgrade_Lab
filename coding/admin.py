@@ -13,7 +13,9 @@ class TestCaseAdmin(admin.ModelAdmin):
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'problem', 'status', 'submission_time')
+    list_display = ('user', 'problem', 'status', 'submission_time', 'runtime', 'memory')
+    list_filter = ('status', 'submission_time')
+    search_fields = ('user__username', 'problem__title')
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):

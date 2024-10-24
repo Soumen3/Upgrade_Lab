@@ -1,5 +1,9 @@
 {% extends "base.html" %}	
 
 {% block body %}
-	<h1 class="dark:bg-gray-800 dark:text-white h-screen">Home</h1>
+	<h1 class="dark:bg-gray-800 dark:text-white min-h-screen">Home</h1>
+	<div class="content">
+		{% include "components/chatbot.html" %}
+	</div>
+
 {% endblock body %}

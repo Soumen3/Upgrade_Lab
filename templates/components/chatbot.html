@@ -51,33 +51,30 @@
 
 
  <!-- Chat Icon Button -->
- <div id="chatIcon" class="fixed bottom-4 right-0 mr-3 bg-blue-600 text-white p-4 rounded-full shadow-lg cursor-pointer">
+ <div id="chatIcon" class="fixed bottom-4 right-5 bg-blue-600 text-white p-4 rounded-full shadow-lg cursor-pointer">
     💬
 </div>
 
 <!-- Chatbox Container (Initially hidden) -->
-<div id="chatBox" class="fixed bottom-4 right-0 mr-3 w-72 md:w-96 h-96 md:h-[30rem] bg-white dark:bg-gray-700 dark:text-white shadow-lg rounded-lg border border-gray-200  flex-col justify-between hidden">
+<div id="chatBox" class="fixed bottom-4 right-5 w-72 md:w-96 h-96 md:h-[30rem] bg-white dark:bg-gray-700 dark:text-white shadow-lg rounded-lg border border-gray-200  flex-col justify-between hidden">
     
     <!-- Header -->
-    <div class="bg-blue-600 p-3 text-white font-semibold flex justify-between items-center h-1/6">
+    <div class="bg-blue-600 p-3 text-white font-semibold flex justify-between items-center h-1/6 z-0">
         <span>Chat Support</span>
         <button id="closeChat" class="text-white">✕</button>
     </div>
     
     <!-- Messages Area -->
     <div id="messagesArea" class="flex-1 p-3 overflow-y-auto">
-        <div class="space-y-3 min-h-full">
+        <div class="space-y-3">
             {% if response %}
                 <div class="bg-gray-200 p-2 rounded-md max-w-xs text-sm text-gray-700">
                     {{ response }}
                 </div>
             {% else %}
-                <div class="bg-gray-200 p-2 rounded-md max-w-xs text-sm text-gray-700">
-                    Hello! How can I help you today?
-                </div>
-                <div class="bg-blue-600 text-white p-2 rounded-md max-w-xs text-sm ml-auto">
-                    I need help with an order.
-                </div>
+                <div class="bg-gray-200 p-2 rounded-md max-w-xs text-sm text-gray-700 mb-1">
+                    Hello! I'm Jarvis.  How can I help you today?
+                </div>  
             {% endif %}
         </div>
     </div>
@@ -86,7 +83,7 @@
     <div class="p-3 border-t border-gray-200 bottom-0 h-1/6">
         <form id="chatForm" class="flex items-center space-x-2" method="post" action="{% url 'chatbot' %}">
             {% csrf_token %}
-            <input type="text" id="prompt" name="prompt" class="flex-1 p-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Type your message...">
+            <input type="text" id="prompt" name="prompt" class="flex-1 p-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 dark:text-gray-800" placeholder="Type your message...">
             <button type="submit" class="bg-blue-600 text-white px-3 py-2 rounded-md">Send</button>
         </form>
     </div>
@@ -117,6 +114,12 @@
             chatIcon.classList.remove("hidden"); // Show chat icon when chat box is hidden
         });
 
+        // Function to determine if the response is code
+        function isCode(response) {
+            const codeIndicators = ['```'];
+            return codeIndicators.some(indicator => response.includes(indicator));
+        }
+
         // Handle form submission using AJAX
         chatForm.addEventListener("submit", function(event) {
             event.preventDefault(); // Prevent the default form submission
@@ -126,9 +129,11 @@
 
             // Add loading message
             const loadingMessage = document.createElement("div");
-            loadingMessage.classList.add("bg-gray-200", "p-2", "rounded-md", "max-w-xs", "text-sm", "text-gray-700");
+            loadingMessage.classList.add("bg-gray-200", "p-2", "rounded-md", "max-w-xs", "text-sm", "text-gray-700", "w-fit", "mb-1");
             loadingMessage.textContent = "Loading...";
             messagesArea.appendChild(loadingMessage);
+            // Clear the input field
+            chatForm.reset();
 
             fetch("{% url 'chatbot' %}", {
                 method: "POST",
@@ -145,17 +150,40 @@
 
                 // Update the messages area with the response
                 const userMessage = document.createElement("div");
-                userMessage.classList.add("bg-blue-600", "text-white", "p-2", "rounded-md", "max-w-xs", "text-sm", "ml-auto");
+                userMessage.classList.add("bg-blue-600", "text-white", "p-2", "rounded-md", "max-w-xs", "text-sm", "ml-auto", "w-fit", "mb-1");
                 userMessage.textContent = prompt;
                 messagesArea.appendChild(userMessage);
 
-                const botMessage = document.createElement("div");
-                botMessage.classList.add("bg-gray-200", "p-2", "rounded-md", "max-w-xs", "text-sm", "text-gray-700");
-                botMessage.textContent = data.response;
+                // Check if the response is empty
+                if (!data.response.trim()) {
+                    console.log(data)
+                    const errorMessage = document.createElement("div");
+                    errorMessage.classList.add("bg-red-600", "text-white", "p-2", "rounded-md", "max-w-xs", "text-sm", "w-fit", "mb-1");
+                    errorMessage.textContent = "An error occurred. Please try again.";
+                    messagesArea.appendChild(errorMessage);
+                    errorMessage.scrollIntoView({ behavior: "smooth" });
+                    return;
+                }
+
+                // Determine if the response is code or normal text
+                const botMessage = isCode(data.response) ? document.createElement("pre") : document.createElement("div");
+                botMessage.classList.add("bg-gray-200", "p-2", "rounded-md", "max-w-xs", "text-sm", "text-gray-700", "w-fit", "mb-1");
+                if (isCode(data.response)) {
+                    botMessage.classList.add("overflow-x-scroll");
+                    const codeBlock = document.createElement("code");
+                    codeBlock.classList.add("hljs");
+                    codeBlock.textContent = data.response.replace(/```/g, '');
+                    botMessage.appendChild(codeBlock);
+                    hljs.highlightElement(codeBlock);
+                } else {
+                    botMessage.innerHTML = data.response.replace(/\n/g, '<br>');
+                }
                 messagesArea.appendChild(botMessage);
 
-                // Clear the input field
-                chatForm.reset();
+                // Scroll to the latest message
+                botMessage.scrollIntoView({ behavior: "smooth" });
+
+                
             })
             .catch(error => {
                 console.error("Error:", error);
@@ -163,9 +191,12 @@
                 messagesArea.removeChild(loadingMessage);
 
                 const errorMessage = document.createElement("div");
-                errorMessage.classList.add("bg-red-600", "text-white", "p-2", "rounded-md", "max-w-xs", "text-sm", "ml-auto");
+                errorMessage.classList.add("bg-red-600", "text-white", "p-2", "rounded-md", "max-w-xs", "text-sm", "ml-auto", "w-fit", "mb-1");
                 errorMessage.textContent = "An error occurred. Please try again.";
                 messagesArea.appendChild(errorMessage);
+
+                // Scroll to the latest message
+                errorMessage.scrollIntoView({ behavior: "smooth" });
             });
         });
     });

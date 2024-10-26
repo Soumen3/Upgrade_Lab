@@ -8,7 +8,7 @@ def home(request):
 
 
 def chatbot(request):
-    response = None
+    response = "Something went wrong. Please try again."
     if request.method == 'POST':
         prompt = request.POST.get('prompt')
         response = ask_chatbot(prompt, max_tokens=1024)

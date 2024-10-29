@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 def generate_python_code(inputs):
     # Generate the Python code snippet based on the input data
     code = f"""
+# don't change the function name
 def Solution({', '.join(inputs[0].keys())}):
     # Write your code here
     

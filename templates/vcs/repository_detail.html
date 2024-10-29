@@ -2,16 +2,82 @@
 {% load static %}
 
 {% block body %}
-    <div class="bg-gray-300 dark:text-white dark:bg-gray-800 h-screen">
-        <p class="text-3xl dark:text-white">{{ repository.name }}</p>
-        <p class="dark:text-white">{{ repository.description }}</p>
-        <p class="dark:text-white">Owner: {{ repository.owner.username }}</p>
-        <p class="dark:text-white">Created at: {{ repository.created_at }}</p>
-        <h2 class="dark:text-white">Files</h2>
-        <ul>
-            {% for file in files %}
-            <li class="dark:text-white">{{ file.path }}</li>
-            {% endfor %}
-        </ul>
+    <div class="content dark:text-white dark:bg-gray-800 h-screen">
+        <div class="details dark:text-white dark:bg-gray-800">
+            <p class="text-3xl dark:text-white">{{ repository.name }}</p>
+            <p class="dark:text-white">{{ repository.description }}</p>
+            <p class="dark:text-white">Owner: {{ repository.owner.username }}</p>
+            <p class="dark:text-white">Created at: {{ repository.created_at }}</p>
+        </div>
+        <div class="flex border-2 m-2 h-auto">
+            <div class="w-1/4 p-4 border-r-2 border-gray-800 dark:border-gray-50">
+                <h2 class="dark:text-white">Files</h2>
+                <ul id="file-list">
+                    {% for folder, contents in files.items %}
+                        {% include 'components/file_tree.html' with folder=folder contents=contents %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="w-3/4 p-4" id="file-content">
+                <p class="text-2xl dark:text-white">Select a file to view its content</p>
+            </div>
+        </div>
     </div>
+
+    <style>
+        .folder {
+            cursor: pointer;
+        }
+        .nested {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileLinks = document.querySelectorAll('.file-link');
+            fileLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const fileId = this.getAttribute('data-file-id');
+                    const repoId = this.getAttribute('data-repo-id');
+                    
+                    // Show loading message
+                    document.getElementById('file-content').innerHTML = `<p class="text-2xl dark:text-white">Loading...</p>`;
+                    
+                    fetch(`/vcs/repositories/${repoId}/files/${fileId}/`)
+                        .then(response => response.text())
+                        .then(data => {
+                            document.getElementById('file-content').innerHTML = `<pre class="dark:text-white">${data}</pre>`;
+                        });
+                });
+            });
+
+            // Handle folder clicks to toggle visibility
+            const folders = document.querySelectorAll('.folder');
+            folders.forEach(folder => {
+                folder.addEventListener('click', function(event) {
+                    event.stopPropagation(); // Prevents triggering other event handlers
+
+                    // Access the nested <ul> element within the clicked folder's container
+                    const nestedList = this.querySelector('.nested');
+                    
+                    if (nestedList) {
+                        // Toggle visibility for the current folder only
+                        nestedList.classList.toggle('active');
+                        this.classList.toggle('folder-open');
+                    }
+                });
+            });
+            const files = document.querySelectorAll('.file');
+            files.forEach(file => {
+                file.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                });
+            });
+        });
+    </script>
 {% endblock body %}

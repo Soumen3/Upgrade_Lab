@@ -6,6 +6,8 @@ from .form import RepositoryUploadForm
 import zipfile
 from pathlib import Path
 from django.core.files.base import ContentFile
+from django.http import HttpResponse
+
 
 @login_required
 def repository_list(request):
@@ -14,9 +16,26 @@ def repository_list(request):
 
 @login_required
 def repository_detail(request, pk):
+    context = {}
     repository = get_object_or_404(Repository, pk=pk)
+    context['repository'] = repository
     files = RepositoryFile.objects.filter(repository=repository)
-    return render(request, 'vcs/repository_detail.html', {'repository': repository, 'files': files})
+    file_structure = build_file_structure(files)
+    context['files'] = file_structure
+    return render(request, 'vcs/repository_detail.html', context)
+
+def build_file_structure(files):
+    file_structure = {}
+    for file in files:
+        parts = file.path.split('/')
+        current_level = file_structure
+        for part in parts[:-1]:
+            if part not in current_level:
+                current_level[part] = {}
+            current_level = current_level[part]
+        current_level[parts[-1]] = file
+    print(file_structure)
+    return file_structure
 
 @login_required
 def upload_repository(request):
@@ -52,3 +71,10 @@ def upload_repository(request):
         form = RepositoryUploadForm()
 
     return render(request, 'vcs/upload_repository.html', {'form': form})
+
+
+
+@login_required
+def file_detail(request, repository_id, file_id):
+    file = get_object_or_404(RepositoryFile, repository_id=repository_id, id=file_id)
+    return HttpResponse(file.file.read(), content_type='text/plain')

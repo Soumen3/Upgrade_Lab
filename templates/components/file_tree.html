@@ -1,0 +1,13 @@
+{% if contents.items %}
+    <li class="folder dark:text-white bg-gray-400 rounded-sm px-2 my-1">{{ folder }}
+        <ul class="nested">
+            {% for subfolder, subcontents in contents.items %}
+                {% include 'components/file_tree.html' with folder=subfolder contents=subcontents %}
+            {% endfor %}
+        </ul>
+    </li>
+{% else %}
+    <li class="dark:text-white file px-2">
+        <a href="#" class="file-link dark:text-white" data-file-id="{{ contents.id }}" data-repo-id="{{ contents.repository.id }}">{{ folder }}</a>
+    </li>
+{% endif %}

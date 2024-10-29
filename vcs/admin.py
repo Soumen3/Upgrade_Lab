@@ -3,4 +3,10 @@ from .models import Repository, Commit, RepositoryFile
 
 admin.site.register(Repository)
 admin.site.register(Commit)
-admin.site.register(RepositoryFile)
+
+
+@admin.register(RepositoryFile)
+class RepositoryFileAdmin(admin.ModelAdmin):
+    list_display = ('id', 'repository', 'path', 'file')
+    list_filter = ('repository',)
+    search_fields = ('path',)

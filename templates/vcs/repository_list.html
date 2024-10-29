@@ -3,14 +3,19 @@
 
 
 {% block body %}
-    <div class="bg-gray-300 dark:text-white dark:bg-gray-800 h-screen">
-        <p class="text text-center text-lg dark:text-white">Repository List</p>
-        <ul>
-            {% for repository in repositories %}
-                <li><a href="{% url 'repository_detail' repository.pk %}">{{ repository.name }}</a></li>
-            {% endfor %}
-        </ul>
+    <div class="bg-gray-300 dark:text-white dark:bg-gray-800 h-screen py-4">
         <a href="{% url 'upload_repository' %}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Upload a new repository</a>
+
+        <div class="repos">
+            <p class="text text-center text-lg dark:text-white">Repository List</p>
+            <ul class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                {% for repository in repositories %}
+                    <li class="w-full px-4 py-2 border-b border-gray-200 dark:border-gray-600">
+                        <a href="{% url 'repository_detail' repository.pk %}">{{ repository.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 
     <div class="content">

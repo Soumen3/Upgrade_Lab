@@ -20,10 +20,23 @@ def Solution({', '.join(inputs[0].keys())}):
 """
     return code
 
+def generate_javascript_code(inputs):
+    # Generate the JavaScript code snippet based on the input data
+    code = f"""// don't change the function name
+function Solution({', '.join(inputs[0].keys())}) {{
+    // Write your code here
+
+}}
+"""
+    return code
+
 def generate_code_snippet(inputs, language="python3"):
     # Generate the code snippet based on the input data
     if language == "python3":
         code = generate_python_code(inputs)
+    elif language == "javascript":
+        code = generate_javascript_code(inputs)
+        print(code)
     else:
         pass  # Add support for other languages here
     return (code, language)

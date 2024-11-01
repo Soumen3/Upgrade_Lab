@@ -2,10 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Problem, TestCase, CodeSnippet, Submission
 from .utilities import generate_code_snippet, create_or_update_user_profile, handle_run_action, handle_submit_action
 from .forms import ProblemForm, TestCaseForm
-import json
-from decouple import config
 from django.contrib import messages
 from django.utils import timezone
+from django.http import JsonResponse
 
 
 
@@ -31,39 +30,39 @@ def problem_list_view(request):
 def problem_detail_view(request, pk):
     context = {}
     problem = get_object_or_404(Problem, pk=pk)
+    language = 'python3'
 
     if request.method == 'POST':
         code = request.POST.get('code')
         action = request.POST.get('action')
-        language = "python3"  # Assume the language is python
+        language = request.POST.get('language')  # Get the selected language
         input_data = problem.sample_input
         output_data = problem.sample_output
 
         context['code'] = code
+        context['selected_language'] = language  # Pass the selected language to the context
 
         if action == 'run':
-            run_context = handle_run_action(code, input_data, output_data)
+            run_context = handle_run_action(code, input_data, output_data, language)
             context.update(run_context)
 
         elif action == 'submit':
-            submit_context = handle_submit_action(request.user, problem, code)
+            submit_context = handle_submit_action(request.user, problem, code, language)
             context.update(submit_context)
 
             # create or update userProfile
             if context['overall_status'] == 'correct':
-                user_profile=create_or_update_user_profile(request, problem)
+                user_profile = create_or_update_user_profile(request, problem)
                 if user_profile:
-                    messages.success(request, 'User Profile Updatd Successfully!')
+                    messages.success(request, 'User Profile Updated Successfully!')
             else:
                 messages.error(request, 'Wrong Answer!')
-            
 
     context['problem'] = problem
     if Submission.objects.filter(user=request.user, problem=problem):
-        code_snippets = Submission.objects.get(user=request.user, problem=problem)
-        
+        code_snippets = Submission.objects.get(user=request.user, problem=problem, language=language)
     else:
-        code_snippets = CodeSnippet.objects.get(problem=problem)
+        code_snippets = CodeSnippet.objects.get(problem=problem, language=language)
     context['code_snippets'] = code_snippets
 
     return render(request, 'coding/problem_detail.html', context)
@@ -104,3 +103,11 @@ def post_problems(request):
     return render(request, 'coding/post_problem.html', context)
 
 
+def get_code_snippet(request, pk):
+    language = request.GET.get('language')
+    problem = get_object_or_404(Problem, pk=pk)
+    if Submission.objects.filter(user=request.user, problem=problem, language=language):
+        code_snippet = Submission.objects.filter(user=request.user, problem=problem, language=language).first()
+    else:
+        code_snippet = CodeSnippet.objects.filter(problem=problem, language=language).first()
+    return JsonResponse({'code': code_snippet.code if code_snippet else ''})

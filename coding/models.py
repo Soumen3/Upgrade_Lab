@@ -28,16 +28,31 @@ class TestCase(models.Model):
         return f"Test Case for {self.problem.title}"
     
 class CodeSnippet(models.Model):
+    PYTHON = 'python3'
+    JAVASCRIPT = 'javascript'
+    JAVA = 'java'
+    CPP = 'cpp'
+    CSHARP = 'csharp'
+
+    LANGUAGE_CHOICES = [
+        (PYTHON, 'Python'),
+        (JAVASCRIPT, 'JavaScript'),
+        (JAVA, 'Java'),
+        (CPP, 'C++'),
+        (CSHARP, 'C#'),
+    ]
+
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='code_snippets')
-    language = models.CharField(max_length=50)
+    language = models.CharField(max_length=50, choices=LANGUAGE_CHOICES)
     code = models.TextField()
 
     def __str__(self):
-        return f"Code Snippet for {self.problem.title} in {self.language}"
+        return f"Code Snippet for {self.problem.title} in {self.get_language_display()}"
 
 class Submission(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    language = models.CharField(max_length=50, choices=CodeSnippet.LANGUAGE_CHOICES, null=True, blank=True)
     code = models.TextField()
     submission_time = models.DateTimeField(default=timezone.now)
     status = models.CharField(

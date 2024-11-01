@@ -2,11 +2,13 @@
 {% load static %}
 
 {% block css %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script> <!-- Add appropriate language mode -->
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/xml/xml.min.js"></script>
 {% endblock css %}
 
 {% block body %}
@@ -33,7 +35,17 @@
 
         <form method="POST">
             {% csrf_token %}
-            <textarea  id="code-editor" name="code" rows="10" cols="80" placeholder="Write your solution here...">{{ code|default:code_snippets.code }}</textarea>
+            <div class="mb-4 right-0">
+                <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Language</label>
+                <select id="language" name="language" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:text-white dark:bg-gray-700 max-w-fit">
+                    <option value="python3" {% if selected_language == 'python3' %}selected{% endif %}>Python</option>
+                    <option value="javascript" {% if selected_language == 'javascript' %}selected{% endif %}>JavaScript</option>
+                    <option value="java" {% if selected_language == 'java' %}selected{% endif %}>Java</option>
+                    <option value="cpp" {% if selected_language == 'cpp' %}selected{% endif %}>C++</option>
+                    <option value="csharp" {% if selected_language == 'csharp' %}selected{% endif %}>C#</option>
+                </select>
+            </div>
+            <textarea id="code-editor" name="code" rows="10" cols="80" placeholder="Write your solution here...">{{ code|default:code_snippets.code }}</textarea>
             <button type="submit" name="action" value="run"
                 class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
             >Run</button>
@@ -43,13 +55,51 @@
         </form>
 
         <script>
-            var editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
-                lineNumbers: true,
-                mode: 'python',  // Set language mode, e.g., 'python', 'javascript', etc.
-                theme: 'monokai'  // You can change the theme
+            document.addEventListener('DOMContentLoaded', function() {
+                var languageSelect = document.getElementById('language');
+                var selectedLanguage = languageSelect.value;
+                var mode = selectedLanguage;
+
+                if (mode === 'python3') {
+                    mode = 'python';
+                } else if (mode === 'cpp') {
+                    mode = 'text/x-c++src';
+                } else if (mode === 'csharp') {
+                    mode = 'text/x-csharp';
+                }
+
+                var editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+                    lineNumbers: true,
+                    mode: mode,  // Set language mode based on selected language
+                    theme: 'monokai'  // Set the theme
+                });
+
+                languageSelect.addEventListener('change', function() {
+                    var mode = this.value;
+                    var language = mode;
+                    if (mode === 'python3') {
+                        mode = 'python';
+                    } else if (mode === 'cpp') {
+                        mode = 'text/x-c++src';
+                    } else if (mode === 'csharp') {
+                        mode = 'text/x-csharp';
+                    }
+                    editor.setOption('mode', mode);
+
+                    // Show loading message
+                    editor.setValue('Loading...');
+
+                    // Fetch the code snippet for the selected language
+                    var problemId = {{ problem.id }};
+                    fetch(`/code/problem/${problemId}/code_snippet/?language=${language}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            editor.setValue(data.code);
+                        });
+                });
             });
         </script>
-
 
         {% if result %}
             <h3>Public Test Cases:</h3>

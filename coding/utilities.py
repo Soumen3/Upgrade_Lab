@@ -55,39 +55,50 @@ def create_or_update_user_profile(request, problem):
     return user_profile
 
 
-def handle_run_action(code, input_data, output_data):
-    function_name = config("LAMBDA_COMPILER_FUNCTION")
+def handle_run_action(code, input_data, output_data, language):
+    if language == 'python3':
+        function_name = config("LAMBDA_COMPILER_FUNCTION")
+    elif language == 'javascript':
+        function_name = config("LAMBDA_COMPILER_FUNCTION_JS")
     result = invoke_lambda_function(function_name, code, input_data, output_data)
 
-    results = json.loads((result['body']))['results']
-    summary = json.loads((result['body']))['summary']
-
     context = {}
+
     if result['statusCode'] == 200:
+        results = json.loads((result['body']))['results']
         context['result'] = results
+
+        summary = json.loads((result['body']))['summary']
+        average_execution_time_ms = summary['average_execution_time']
+        average_execution_time_s = average_execution_time_ms / 1000.0
+        summary['average_execution_time'] = f"{average_execution_time_s:.5f} seconds"
+        context['summary'] = summary
     else:
-        context['error'] = results
-
-    average_execution_time_ms = summary['average_execution_time']
-    average_execution_time_s = average_execution_time_ms / 1000.0
-    summary['average_execution_time'] = f"{average_execution_time_s:.5f} seconds"
-
-    context['summary'] = summary
+        context['error'] = json.loads((result['body']))['error']
 
     return context
 
 
 
-def handle_submit_action(user, problem, code):
+def handle_submit_action(user, problem, code, language):
     # Test the code against the single test case
     test_case = get_object_or_404(TestCase, problem=problem)
 
     input_data = test_case.input_data
     output_data = test_case.expected_output
 
-    function_name = config("LAMBDA_COMPILER_FUNCTION")
+    if language == 'python3':
+        function_name = config("LAMBDA_COMPILER_FUNCTION")
+    elif language == 'javascript':
+        function_name = config("LAMBDA_COMPILER_FUNCTION_JS")
+        
     result = invoke_lambda_function(function_name, code, input_data, output_data)
 
+    if result['statusCode'] != 200:
+        return {
+            'error': json.loads((result['body']))['error']
+        }
+    
     results = json.loads((result['body']))['results']
     summary = json.loads((result['body']))['summary']
     overall_status = 'correct' if all(r['is_match'] for r in results) else 'wrong'
@@ -101,6 +112,7 @@ def handle_submit_action(user, problem, code):
     submission, created = Submission.objects.get_or_create(
         user=user,
         problem=problem,
+        language=language,
         defaults={'code': code}
     )
 

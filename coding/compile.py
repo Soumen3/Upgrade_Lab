@@ -36,12 +36,13 @@ def invoke_lambda_function(function_name, code, input_sets, expected_outputs=Non
 # Example usage
 if __name__ == "__main__":
     # Lambda function name
-    function_name = 'test-function'
+    function_name = 'javascript-handler'
     
     # Code to be executed by the Lambda function
     code = """
-def Solution(a, b):
-    return a + b
+function Solution(inputs) {
+    return inputs.a + inputs.b;
+}
 """
     
     # Multiple input sets to pass to the 'run' function

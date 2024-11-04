@@ -1,97 +1,39 @@
-{% comment %} <div class="fixed bottom-4 right-0 z-50">
-    <div class="chat-icon bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg cursor-pointer" onclick="toggleChat()">
-        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17h6l3 3v-3h2V9h-2M4 4h11v8H9l-3 3v-3H4V4Z"/>
-        </svg>  
-    </div>
-</div>
-
-<div class="chat-container fixed w-full md:w-80 lg:w-96 h-auto p-4 shadow-lg rounded-lg hidden flex-col z-50 bg-gray-400" id="chat-container">
-    <div class="chat-header text-lg font-semibold mb-4">Chat with Helper</div>
-    {% if response %}
-        <div class="chat-response mt-4 p-2 bg-gray-100 rounded max-h-60 overflow-auto">
-            <h2 class="font-semibold">Response:</h2>
-            <p>{{ response }}</p>
-        </div>
-    {% else %}
-        <div class="chat-response mt-4 p-2 bg-gray-100 rounded gap-5 grid">
-            <p class="text-pretty">
-                <span>
-                    Feel free to ask your question. <br>
-                    I'm here to assist you.
-                </span>
-            </p>
-            <p>
-                Ask your question and I will try to help you.
-            </p>
-        </div>
-    {% endif %}
-    <form class="chat-form flex flex-col" method="post" action="{% url 'chatbot' %}">
-        {% csrf_token %}
-        <label for="prompt" class="mb-2">Ask a question:</label>
-        <input type="text" id="prompt" name="prompt" required class="p-2 mb-4 border border-gray-300 rounded">
-        <button type="submit" class="p-2 bg-blue-500 text-white rounded hover:bg-blue-700">Submit</button>
-    </form>
-</div>
-
-<script>
-    function toggleChat() {
-        var chatContainer = document.getElementById('chat-container');
-        if (chatContainer.classList.contains('hidden')) {
-            chatContainer.classList.remove('hidden');
-            chatContainer.classList.add('flex');
-        } else {
-            chatContainer.classList.remove('flex');
-            chatContainer.classList.add('hidden');
-        }
-    }
-</script> {% endcomment %}
-
-
-
-
- <!-- Chat Icon Button -->
- <div id="chatIcon" class="fixed bottom-4 right-5 bg-blue-600 text-white p-4 rounded-full shadow-lg cursor-pointer">
+<!-- Chat Icon Button -->
+<div id="chatIcon" class="fixed bottom-4 right-5 bg-blue-600 text-white p-4 rounded-full shadow-lg cursor-pointer" aria-label="Open Chat">
     💬
 </div>
 
 <!-- Chatbox Container (Initially hidden) -->
-<div id="chatBox" class="fixed bottom-4 right-5 w-72 md:w-96 h-96 md:h-[30rem] bg-white dark:bg-gray-700 dark:text-white shadow-lg rounded-lg border border-gray-200  flex-col justify-between hidden">
+
+<div id="chatBox" class="fixed bottom-4 right-5 w-80 md:w-96 h-96 bg-white dark:bg-gray-800 dark:text-white shadow-lg rounded-lg border border-gray-300 dark:border-gray-600 flex flex-col hidden transition-all duration-300">
     
     <!-- Header -->
-    <div class="bg-blue-600 p-3 text-white font-semibold flex justify-between items-center h-1/6 z-0">
+    <div class="bg-blue-700 p-4 text-white font-semibold flex justify-between items-center rounded-t-lg shadow">
         <span>Chat Support</span>
-        <button id="closeChat" class="text-white">✕</button>
+        <button id="closeChat" class="text-white text-lg focus:outline-none hover:bg-blue-600 p-1 rounded-full" aria-label="Close Chat">✕</button>
     </div>
     
     <!-- Messages Area -->
-    <div id="messagesArea" class="flex-1 p-3 overflow-y-auto">
-        <div class="space-y-3">
-            {% if response %}
-                <div class="bg-gray-200 p-2 rounded-md max-w-xs text-sm text-gray-700">
-                    {{ response }}
-                </div>
-            {% else %}
-                <div class="bg-gray-200 p-2 rounded-md max-w-xs text-sm text-gray-700 mb-1">
-                    Hello! I'm Jarvis.  How can I help you today?
-                </div>  
-            {% endif %}
-        </div>
+    <div id="messagesArea" class="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50 dark:bg-gray-700">
+        <div class="bg-gray-300 dark:bg-gray-600 p-3 rounded-lg max-w-xs text-sm text-gray-800 dark:text-gray-200 shadow">
+            Hello! I'm Jarvis. How can I help you today?
+        </div>  
     </div>
     
     <!-- Input Area -->
-    <div class="p-3 border-t border-gray-200 bottom-0 h-1/6">
+    <div class="p-3 border-t border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 rounded-b-lg">
         <form id="chatForm" class="flex items-center space-x-2" method="post" action="{% url 'chatbot' %}">
             {% csrf_token %}
-            <input type="text" id="prompt" name="prompt" class="flex-1 p-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 dark:text-gray-800" placeholder="Type your message...">
-            <button type="submit" class="bg-blue-600 text-white px-3 py-2 rounded-md">Send</button>
+            <input type="text" id="prompt" name="prompt" class="flex-1 p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200 placeholder-gray-400" placeholder="Type your message..." aria-label="Type your message">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Send</button>
         </form>
     </div>
 
 </div>
 
+
+
 <script>
-    // Wait for the DOM to load
     document.addEventListener("DOMContentLoaded", function() {
         
         const chatIcon = document.getElementById("chatIcon");
@@ -100,40 +42,64 @@
         const chatForm = document.getElementById("chatForm");
         const messagesArea = document.getElementById("messagesArea");
 
-        // Show chat box when the chat icon is clicked
-        chatIcon.addEventListener("click", function() {
-            chatBox.classList.remove("hidden");
-            chatBox.classList.add("flex");
-            chatIcon.classList.add("hidden"); // Hide chat icon when chat box is shown
-        });
-
-        // Hide chat box when the close button is clicked
-        closeChat.addEventListener("click", function() {
-            chatBox.classList.add("hidden");
-            chatBox.classList.remove("flex");
-            chatIcon.classList.remove("hidden"); // Show chat icon when chat box is hidden
-        });
-
-        // Function to determine if the response is code
-        function isCode(response) {
-            const codeIndicators = ['```'];
-            return codeIndicators.some(indicator => response.includes(indicator));
+        // Toggle chat box visibility
+        function toggleChatBox(show) {
+            chatBox.classList.toggle("hidden", !show);
+            chatIcon.classList.toggle("hidden", show);
         }
 
-        // Handle form submission using AJAX
+        chatIcon.addEventListener("click", () => toggleChatBox(true));
+        closeChat.addEventListener("click", () => toggleChatBox(false));
+
+        // Helper function to create a message element
+        // Helper function to create a message element
+function createMessageElement(content, isUser = false, isError = false, isCode = false) {
+    const messageWrapper = document.createElement("div");
+    messageWrapper.classList.add("flex", "mb-1", "w-full");
+
+    // Adjust alignment: user messages (right) and bot messages (left)
+    if (isUser) {
+        messageWrapper.classList.add("justify-end");
+    } else {
+        messageWrapper.classList.add("justify-start");
+    }
+
+    const message = document.createElement(isCode ? "pre" : "div");
+    message.classList.add("p-2", "rounded-md", "max-w-xs", "text-sm", "w-fit");
+
+    // Different styles for user, error, or bot messages
+    message.classList.add(isUser ? "bg-blue-600" : isError ? "bg-red-600" : "bg-gray-200");
+    message.classList.add(isUser || isError ? "text-white" : "text-gray-700");
+
+    if (isCode) {
+        const codeBlock = document.createElement("code");
+        codeBlock.classList.add("hljs");
+        codeBlock.textContent = content.replace(/```/g, '');
+        message.appendChild(codeBlock);
+        hljs.highlightElement(codeBlock);
+    } else {
+        message.textContent = content;
+    }
+
+    messageWrapper.appendChild(message);
+    return messageWrapper;
+}
+
+
+        // Handle form submission with AJAX
         chatForm.addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent the default form submission
+            event.preventDefault();
 
             const formData = new FormData(chatForm);
             const prompt = formData.get("prompt");
 
-            // Add loading message
-            const loadingMessage = document.createElement("div");
-            loadingMessage.classList.add("bg-gray-200", "p-2", "rounded-md", "max-w-xs", "text-sm", "text-gray-700", "w-fit", "mb-1");
-            loadingMessage.textContent = "Loading...";
-            messagesArea.appendChild(loadingMessage);
-            // Clear the input field
+            // Add user message to the chat
+            messagesArea.appendChild(createMessageElement(prompt, true));
             chatForm.reset();
+
+            // Add loading message
+            const loadingMessage = createMessageElement("Loading...");
+            messagesArea.appendChild(loadingMessage);
 
             fetch("{% url 'chatbot' %}", {
                 method: "POST",
@@ -148,55 +114,17 @@
                 // Remove loading message
                 messagesArea.removeChild(loadingMessage);
 
-                // Update the messages area with the response
-                const userMessage = document.createElement("div");
-                userMessage.classList.add("bg-blue-600", "text-white", "p-2", "rounded-md", "max-w-xs", "text-sm", "ml-auto", "w-fit", "mb-1");
-                userMessage.textContent = prompt;
-                messagesArea.appendChild(userMessage);
-
-                // Check if the response is empty
                 if (!data.response.trim()) {
-                    console.log(data)
-                    const errorMessage = document.createElement("div");
-                    errorMessage.classList.add("bg-red-600", "text-white", "p-2", "rounded-md", "max-w-xs", "text-sm", "w-fit", "mb-1");
-                    errorMessage.textContent = "An error occurred. Please try again.";
-                    messagesArea.appendChild(errorMessage);
-                    errorMessage.scrollIntoView({ behavior: "smooth" });
-                    return;
-                }
-
-                // Determine if the response is code or normal text
-                const botMessage = isCode(data.response) ? document.createElement("pre") : document.createElement("div");
-                botMessage.classList.add("bg-gray-200", "p-2", "rounded-md", "max-w-xs", "text-sm", "text-gray-700", "w-fit", "mb-1");
-                if (isCode(data.response)) {
-                    botMessage.classList.add("overflow-x-scroll");
-                    const codeBlock = document.createElement("code");
-                    codeBlock.classList.add("hljs");
-                    codeBlock.textContent = data.response.replace(/```/g, '');
-                    botMessage.appendChild(codeBlock);
-                    hljs.highlightElement(codeBlock);
+                    messagesArea.appendChild(createMessageElement("An error occurred. Please try again.", false, true));
                 } else {
-                    botMessage.innerHTML = data.response.replace(/\n/g, '<br>');
+                    const isCodeResponse = data.response.includes("```");
+                    messagesArea.appendChild(createMessageElement(data.response, false, false, isCodeResponse));
                 }
-                messagesArea.appendChild(botMessage);
-
-                // Scroll to the latest message
-                botMessage.scrollIntoView({ behavior: "smooth" });
-
-                
             })
             .catch(error => {
                 console.error("Error:", error);
-                // Remove loading message
                 messagesArea.removeChild(loadingMessage);
-
-                const errorMessage = document.createElement("div");
-                errorMessage.classList.add("bg-red-600", "text-white", "p-2", "rounded-md", "max-w-xs", "text-sm", "ml-auto", "w-fit", "mb-1");
-                errorMessage.textContent = "An error occurred. Please try again.";
-                messagesArea.appendChild(errorMessage);
-
-                // Scroll to the latest message
-                errorMessage.scrollIntoView({ behavior: "smooth" });
+                messagesArea.appendChild(createMessageElement("An error occurred. Please try again.", false, true));
             });
         });
     });

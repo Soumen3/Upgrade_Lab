@@ -12,8 +12,8 @@ class Problem(models.Model):
         max_length=50, 
         choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')]
     )
-    sample_input = models.JSONField()
-    sample_output = models.JSONField()
+    sample_input = models.JSONField(null=True, blank=True)
+    sample_output = models.JSONField(null=True, blank=True)
     tags = models.CharField(max_length=200, help_text="Comma-separated tags")
 
     def __str__(self):
@@ -21,8 +21,8 @@ class Problem(models.Model):
 
 class TestCase(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='test_cases')
-    input_data = models.JSONField()
-    expected_output = models.JSONField()
+    input_data = models.JSONField(null=True, blank=True)
+    expected_output = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return f"Test Case for {self.problem.title}"

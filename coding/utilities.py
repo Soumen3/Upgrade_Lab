@@ -12,8 +12,7 @@ from django.shortcuts import get_object_or_404
 
 def generate_python_code(inputs):
     # Generate the Python code snippet based on the input data
-    code = f"""
-# don't change the function name
+    code = f"""# don't change the function name
 def Solution({', '.join(inputs[0].keys())}):
     # Write your code here
     
@@ -47,6 +46,8 @@ def generate_code_snippet(inputs, language="python3"):
 def create_or_update_user_profile(request, problem):
     if UserProfile.objects.filter(user=request.user).exists():
         user_profile = UserProfile.objects.get(user=request.user)
+        if user_profile.solved_problems.filter(pk=problem.pk).exists():
+            return user_profile
         if problem.difficulty_level == 'easy':
             user_profile.points += 10
         elif problem.difficulty_level == 'medium':
@@ -57,11 +58,18 @@ def create_or_update_user_profile(request, problem):
         user_profile.solved_problems.add(problem)
         user_profile.problems_solved = user_profile.solved_problems.count()
         user_profile.save()
+
     else:
+        if problem.difficulty_level == 'easy':
+            points = 10
+        elif problem.difficulty_level == 'medium':
+            points = 20
+        else:
+            points = 30
         user_profile = UserProfile.objects.create(
             user=request.user,
             problems_solved=1,
-            points=10,
+            points=points,
         )
         user_profile.solved_problems.add(problem)
         user_profile.save()

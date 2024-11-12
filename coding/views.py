@@ -43,20 +43,32 @@ def problem_detail_view(request, pk):
         context['selected_language'] = language  # Pass the selected language to the context
 
         if action == 'run':
-            run_context = handle_run_action(code, input_data, output_data, language)
-            context.update(run_context)
+            try:
+                run_context = handle_run_action(code, input_data, output_data, language)
+                context.update(run_context)
+            except Exception as e:
+                messages.error(request, "Something error occured!")
+                print("Error: ", e)
 
         elif action == 'submit':
-            submit_context = handle_submit_action(request.user, problem, code, language)
-            context.update(submit_context)
+            try:
+                submit_context = handle_submit_action(request.user, problem, code, language)
+                context.update(submit_context)
+                # print("context: ", context)
 
-            # create or update userProfile
-            if context['overall_status'] == 'correct':
-                user_profile = create_or_update_user_profile(request, problem)
-                if user_profile:
-                    messages.success(request, 'User Profile Updated Successfully!')
-            else:
-                messages.error(request, 'Wrong Answer!')
+
+                if context.get('error'): 
+                    messages.error(request, context['error'])
+                # create or update userProfile
+                elif context['overall_status'] == 'correct':
+                    user_profile = create_or_update_user_profile(request, problem)
+                    if user_profile:
+                        messages.success(request, 'User Profile Updated Successfully!')
+                else:
+                    messages.error(request, 'Wrong Answer!')
+            except Exception as e:
+                messages.error(request, "Something error occured!")
+                print("Error: ",e)
 
     context['problem'] = problem
     if Submission.objects.filter(user=request.user, problem=problem):

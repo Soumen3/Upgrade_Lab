@@ -12,71 +12,92 @@
 {% endblock css %}
 
 {% block body %}
-    <div class="bg-gray-300 dark:text-white dark:bg-gray-800 min-h-screen">
-        <p>Title: {{ problem.title }}</p>
+    <div class="bg-gray-100 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-white">
+        <div class="max-w-7xl mx-auto p-6">
 
-        <pre>Description: {{ problem.description }}</pre>
+            <!-- Fullscreen Toggle Button -->
+            <button id="toggleFullscreen" class="mb-4 bg-indigo-600 text-white py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-800">
+                Toggle Fullscreen
+            </button>
 
-        <h3>Sample Input</h3>
-        <p>
-            {% if problem.sample_input %}
-                {% for var, val in problem.sample_input.0.items %}
-                    <p>{{var}}:{{val}}</p>
-                {% endfor %}
-            {% endif %}
-        </p>
+            <!-- Layout Wrapper -->
+            <div id="layoutWrapper" class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <!-- Problem Description Section -->
+                <div class="space-y-6">
+                    <h2 class="text-3xl font-semibold text-indigo-600">{{ problem.title }}</h2>
 
-        <h3>Sample Output</h3>
-        <p>
-            {% if problem.sample_output %}
-                {{ problem.sample_output.0 }}
-            {% endif %}
-        </p>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Description:</h3>
+                        <p class="mt-2 text-gray-800 dark:text-gray-200">{{ problem.description }}</p>
+                    </div>
 
-        <form method="POST">
-            {% csrf_token %}
-            <div class="mb-4 right-0">
-                <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Language</label>
-                <select id="language" name="language" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:text-white dark:bg-gray-700 max-w-fit">
-                    <option value="python3" {% if selected_language == 'python3' %}selected{% endif %}>Python</option>
-                    <option value="javascript" {% if selected_language == 'javascript' %}selected{% endif %}>JavaScript</option>
-                    <option value="java" {% if selected_language == 'java' %}selected{% endif %}>Java</option>
-                    <option value="cpp" {% if selected_language == 'cpp' %}selected{% endif %}>C++</option>
-                    <option value="csharp" {% if selected_language == 'csharp' %}selected{% endif %}>C#</option>
-                </select>
+                    <!-- Sample Input and Output -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Sample Input:</h3>
+                        <div class="mt-2 text-gray-800 dark:text-gray-200">
+                            {% if problem.sample_input %}
+                                {% for var, val in problem.sample_input.0.items %}
+                                    <p>{{ var }}: {{ val }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Sample Output:</h3>
+                        <div class="mt-2 text-gray-800 dark:text-gray-200">
+                            {% if problem.sample_output %}
+                                <p>{{ problem.sample_output.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Editor Section -->
+                <div>
+                    <form method="POST" class="space-y-6">
+                        {% csrf_token %}
+
+                        <!-- Language Selector -->
+                        <div class="mb-4">
+                            <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Language</label>
+                            <select id="language" name="language" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-md dark:text-white dark:bg-gray-700">
+                                <option value="python3" {% if selected_language == 'python3' %}selected{% endif %}>Python</option>
+                                <option value="javascript" {% if selected_language == 'javascript' %}selected{% endif %}>JavaScript</option>
+                                <option value="java" {% if selected_language == 'java' %}selected{% endif %}>Java</option>
+                                <option value="cpp" {% if selected_language == 'cpp' %}selected{% endif %}>C++</option>
+                                <option value="csharp" {% if selected_language == 'csharp' %}selected{% endif %}>C#</option>
+                            </select>
+                        </div>
+
+                        <!-- Code Editor -->
+                        <div>
+                            <textarea id="code-editor" name="code" rows="10" cols="80" placeholder="Write your solution here..." class="w-full p-4 border-2 border-gray-300 rounded-lg shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ code|default:code_snippets.code }}</textarea>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex space-x-4">
+                            <button type="submit" name="action" value="run" class="w-1/2 bg-gradient-to-r from-purple-600 to-blue-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800">Run</button>
+                            <button type="submit" name="action" value="submit" class="w-1/2 bg-gradient-to-r from-purple-600 to-blue-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800">Submit</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <textarea id="code-editor" name="code" rows="10" cols="80" placeholder="Write your solution here...">{{ code|default:code_snippets.code }}</textarea>
-            <button type="submit" name="action" value="run"
-                class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-            >Run</button>
-            <button type="submit" name="action" value="submit"
-                class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-            >Submit</button>
-        </form>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var languageSelect = document.getElementById('language');
-                var selectedLanguage = languageSelect.value;
-                var mode = selectedLanguage;
-
-                if (mode === 'python3') {
-                    mode = 'python';
-                } else if (mode === 'cpp') {
-                    mode = 'text/x-c++src';
-                } else if (mode === 'csharp') {
-                    mode = 'text/x-csharp';
-                }
-
-                var editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
-                    lineNumbers: true,
-                    mode: mode,  // Set language mode based on selected language
-                    theme: 'monokai'  // Set the theme
-                });
-
-                languageSelect.addEventListener('change', function() {
-                    var mode = this.value;
-                    var language = mode;
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const toggleButton = document.getElementById('toggleFullscreen');
+                    const layoutWrapper = document.getElementById('layoutWrapper');
+        
+                    toggleButton.addEventListener('click', function() {
+                        layoutWrapper.classList.toggle('grid-cols-1');
+                        layoutWrapper.classList.toggle('md:grid-cols-2');
+                    });
+        
+                    var languageSelect = document.getElementById('language');
+                    var selectedLanguage = languageSelect.value;
+                    var mode = selectedLanguage;
+        
                     if (mode === 'python3') {
                         mode = 'python';
                     } else if (mode === 'cpp') {
@@ -84,83 +105,89 @@
                     } else if (mode === 'csharp') {
                         mode = 'text/x-csharp';
                     }
-                    editor.setOption('mode', mode);
-
-                    // Show loading message
-                    editor.setValue('Loading...');
-
-                    // Fetch the code snippet for the selected language
-                    var problemId = {{ problem.id }};
-                    fetch(`/code/problem/${problemId}/code_snippet/?language=${language}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log(data);
-                            editor.setValue(data.code);
-                        });
+        
+                    var editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+                        lineNumbers: true,
+                        mode: mode,
+                        theme: 'monokai'
+                    });
+        
+                    languageSelect.addEventListener('change', function() {
+                        var mode = this.value;
+                        var language = mode;
+                        if (mode === 'python3') {
+                            mode = 'python';
+                        } else if (mode === 'cpp') {
+                            mode = 'text/x-c++src';
+                        } else if (mode === 'csharp') {
+                            mode = 'text/x-csharp';
+                        }
+                        editor.setOption('mode', mode);
+                        editor.setValue('Loading...');
+                        var problemId = {{ problem.id }};
+                        fetch(`/code/problem/${problemId}/code_snippet/?language=${language}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                editor.setValue(data.code);
+                            });
+                    });
                 });
-            });
-        </script>
+            </script>
 
-        {% if result %}
-            <h3>Public Test Cases:</h3>
-            <div class="results flex flex-wrap gap-2">
-                {% for ans in result %}
-                    <div class="result border-2 flex gap-4 p-2 border-gray-700 dark:border-gray-50">
-                        <div class="arguments">
-                            {% for var, val in ans.input_set.items %}
-                                <p>{{var}}: {{ val }}</p>
-                            {% endfor %}
-                        </div>
-                        <p>Your Output: {{ ans.actual_output }}</p>
-                        <p>Expected Output: {{ ans.expected_output }}</p>
-                        {% if ans.is_match %}
-                            ✅
-                        {% else %}
-                            ❌
-                        {% endif %}
-                        <hr>
-                    </div>  
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        {% if summary %}
-            <h3>Summary:</h3>
-            <div class="summary">
-                <p>Time: {{ summary.average_execution_time }}</p>
-                <p>Memory: {{ summary.average_memory_used }}</p>
-            </div>
-        {% endif %}
-
-        {% if all_results %}
-            <h3>Test Case Results:</h3>
-            <div class="test-case-results border-2 p-1 flex gap-2" style="width: fit-content;">
-                {% for test_case_result in all_results %}
-                    <div class="test-case-result border-2 p-2 gap-3 w">
-                        <p>Input: 
-                            <div class="arguments">
-                                {% for var, val in test_case_result.input_set.items %}
-                                    <p>{{var}}: {{val}}</p>
-                                {% endfor %}
+            <!-- Public Test Cases -->
+            {% if result %}
+                <div class="mt-6 space-y-6">
+                    <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Public Test Cases:</h3>
+                    <div class="space-y-4">
+                        {% for ans in result %}
+                            <div class="border-2 p-4 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-md">
+                                <div class="mb-2">
+                                    {% for var, val in ans.input_set.items %}
+                                        <p class="text-sm text-gray-700 dark:text-gray-400">{{ var }}: {{ val }}</p>
+                                    {% endfor %}
+                                </div>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">Your Output: {{ ans.actual_output }}</p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">Expected Output: {{ ans.expected_output }}</p>
+                                {% if ans.is_match %}
+                                    <p class="text-green-500 text-sm">✅ Match</p>
+                                {% else %}
+                                    <p class="text-red-500 text-sm">❌ Mismatch</p>
+                                {% endif %}
                             </div>
-                        </p>
-                        <p>Expected Output: {{ test_case_result.expected_output }}</p>
-                        <p>Actual Output: {{ test_case_result.actual_output }}</p>
-                        {% if test_case_result.is_match %}
-                            <p>Status: ✅</p>
-                        {% else %}
-                            <p>Status: ❌</p>
-                        {% endif %}
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+                </div>
+            {% endif %}
 
-        {% if error %}
-            <div class="error">
-                <pre>{{ error }}</pre>
-            </div>
-        {% endif %}
+            <!-- Summary -->
+            {% if summary %}
+                <div class="mt-6 space-y-4">
+                    <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Summary:</h3>
+                    <p>Time: {{ summary.average_execution_time }}</p>
+                    <p>Memory: {{ summary.average_memory_used }}</p>
+                </div>
+            {% endif %}
+
+            <!-- Test Case Results -->
+            {% if all_results %}
+                <div class="mt-6 space-y-6">
+                    <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Test Case Results:</h3>
+                    <div class="space-y-4">
+                        {% for result in all_results %}
+                            <div class="bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-md p-4">
+                                <p class="text-sm text-gray-700 dark:text-gray-400">{{ result.input_set }}</p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">Your Output: {{ result.actual_output }}</p>
+                                <p class="text-sm text-gray-700 dark:text-gray-300">Expected Output: {{ result.expected_output }}</p>
+                                {% if result.is_match %}
+                                    <p class="text-green-500 text-sm">✅ Match</p>
+                                {% else %}
+                                    <p class="text-red-500 text-sm">❌ Mismatch</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
     </div>
-
-{% endblock body %}
+{% endblock %}

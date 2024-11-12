@@ -2,47 +2,74 @@
 {% load static %}
 
 {% block body %}
-    <div class=" h-screen dark:bg-gray-900 dark:text-white">
-        <h1>Problem List</h1>
+<div class="min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white py-8">
+    <div class="max-w-5xl mx-auto px-4">
+        <!-- Title -->
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-white">Problem List</h1>
 
-        <form method="GET">
-            <select name="difficulty" class="dark:bg-gray-700 dark:text-white">
-                <option value="">All</option>
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-            </select>
-            <input type="text" name="tag" placeholder="Tag" class="dark:bg-gray-700 dark:text-white" />
-            <button type="submit" 
-                class="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-            >Filter</button>
-        </form>
+        <!-- Filter Bar -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6 flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+            <form method="GET" class="flex flex-col md:flex-row md:items-center w-full space-y-4 md:space-y-0 md:space-x-4">
+                <!-- Difficulty Dropdown -->
+                <div class="flex items-center space-x-2 w-full md:w-auto">
+                    <label for="difficulty" class="text-gray-700 dark:text-gray-300 font-medium">
+                        Difficulty:
+                    </label>
+                    <select name="difficulty" id="difficulty" class="w-full md:w-auto border rounded-md dark:bg-gray-700 dark:text-white p-2">
+                        <option value="">All</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <!-- Tag Input -->
+                <input 
+                    type="text" name="tag" placeholder="Tag" 
+                    class="border rounded-md dark:bg-gray-700 dark:text-white p-2 w-full md:flex-1"
+                />
+                <!-- Filter Button -->
+                <button type="submit" 
+                    class="bg-gradient-to-br from-purple-600 to-blue-500 text-white hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5"
+                >
+                    Filter
+                </button>
+            </form>
+        </div>
 
-        <ul class="max-w-md divide-y divide-gray-200 dark:divide-gray-700">
-            {% for problem in problems %}
-                <li class="pb-3 sm:pb-4 flex justify-between">
-                    <a href="{% url 'problem_detail' problem.id %}">{{ problem.title }}</a>
-                    <span class="
-                        text-xs font-medium me-2 px-2.5 py-0.5 rounded 
-                        {% if problem.difficulty_level == 'easy' %}
-                            bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300
-                        {% elif problem.difficulty_level == 'medium' %}
-                            bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300
-                        {% elif problem.difficulty_level == 'hard' %}
-                            bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300
-                        {% endif %}
-                    ">
-                {{ problem.difficulty_level }}
-            </span>
-                </li>
-            {% empty %}
-                <li>No problems available.</li>
-            {% endfor %}
-        </ul>
+        <!-- Problem List -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <div class="flex justify-between px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 font-semibold text-gray-700 dark:text-gray-300">
+                <span>Title</span>
+                <span>Difficulty</span>
+            </div>
+            <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                {% for problem in problems %}
+                    <li class="flex justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <a href="{% url 'problem_detail' problem.id %}" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                            {{ problem.title }}
+                        </a>
+                        <span class="text-xs font-medium px-2.5 py-0.5 rounded-lg
+                            {% if problem.difficulty_level == 'easy' %}
+                                bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300
+                            {% elif problem.difficulty_level == 'medium' %}
+                                bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300
+                            {% elif problem.difficulty_level == 'hard' %}
+                                bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300
+                            {% endif %}
+                        ">
+                            {{ problem.difficulty_level}}
+                        </span>
+                    </li>
+                {% empty %}
+                    <li class="px-6 py-4 text-center text-gray-600 dark:text-gray-300">No problems available.</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 
-
-    <div class="content">
-		{% include "components/chatbot.html" %}
-	</div>
-{% endblock body %}
+    <!-- Chatbot Section -->
+    <div class="fixed bottom-4 right-5 w-80 md:w-96">
+        {% include "components/chatbot.html" %}
+    </div>
+</div>
+{% endblock %}

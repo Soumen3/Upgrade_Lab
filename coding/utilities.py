@@ -48,6 +48,7 @@ def create_or_update_user_profile(request, problem):
         user_profile = UserProfile.objects.get(user=request.user)
         if user_profile.solved_problems.filter(pk=problem.pk).exists():
             return user_profile
+        
         if problem.difficulty_level == 'easy':
             user_profile.points += 10
         elif problem.difficulty_level == 'medium':

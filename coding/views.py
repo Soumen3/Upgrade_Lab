@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Problem, TestCase, CodeSnippet, Submission
+from .models import Problem, TestCase, CodeSnippet, Submission, UserProfile
 from .utilities import generate_code_snippet, create_or_update_user_profile, handle_run_action, handle_submit_action
 from .forms import ProblemForm, TestCaseForm
 from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -12,6 +13,9 @@ from django.http import JsonResponse
 def problem_list_view(request):
     # Fetch all problems
     problems = Problem.objects.all()
+    user_detail = None
+    if request.user.is_authenticated:
+        user_detail = UserProfile.objects.get(user=request.user)
 
     # Filter by difficulty (optional)
     difficulty = request.GET.get('difficulty')
@@ -23,10 +27,14 @@ def problem_list_view(request):
     if tag:
         problems = problems.filter(tags__icontains=tag)
 
-    context = {'problems': problems}
+    context = {
+        'problems': problems,
+        'user_detail': user_detail,
+    }
     return render(request, 'coding/problem_list.html', context)
 
 
+@login_required
 def problem_detail_view(request, pk):
     context = {}
     problem = get_object_or_404(Problem, pk=pk)

@@ -13,10 +13,10 @@
 
 {% block body %}
 <div class="bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-white">
-    <div class="max-w-7xl mx-auto py-6 px-4 lg:px-8 space-y-6">
+    {% comment %} <div class="max-w-7xl mx-auto py-6 px-4 lg:px-8 space-y-6"> {% endcomment %}
         
         <!-- Page Header -->
-        <div class="flex items-center justify-between border-b pb-4">
+        <div class="flex items-center justify-between border-b p-5">
             <h1 class="text-2xl font-semibold text-indigo-600">{{ problem.title }}</h1>
             <button id="toggleFullscreen" class="text-sm bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded focus:outline-none">
                 Toggle Fullscreen
@@ -24,7 +24,7 @@
         </div>
 
         <!-- Main Content -->
-        <div id="layoutWrapper" class="grid gap-6 md:grid-cols-2 grid-cols-1">
+        <div id="layoutWrapper" class="grid gap-2 md:grid-cols-2 grid-cols-1">
             <!-- Problem Description Section -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
                 <h2 class="text-xl font-medium text-gray-700 dark:text-gray-300 sm:text-2xl md:text-3xl">Problem Description</h2>
@@ -32,7 +32,7 @@
                 
                 <div>
                     <h3 class="text-md font-semibold text-gray-600 dark:text-gray-400 sm:text-lg md:text-xl">Sample Input</h3>
-                    <pre class="flex mt-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900 p-3 rounded">
+                    <pre class="flex mt-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900 p-3 rounded max-w-full max-h-64 overflow-auto">
                         {% if problem.sample_input %}
                                 {% for var, val in problem.sample_input.0.items %}
                                     <p class="mr-2">{{ var }}: {{ val }}</p>
@@ -42,7 +42,7 @@
                 </div>
                 <div>
                     <h3 class="text-md font-semibold text-gray-600 dark:text-gray-400 sm:text-lg md:text-xl">Sample Output</h3>
-                    <pre class="flex mt-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900 p-3 rounded">
+                    <pre class="flex mt-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900 p-3 rounded max-w-full max-h-64 overflow-auto">
                         {% if problem.sample_output %}
                                 <p>{{ problem.sample_output.0 }}</p>
                         {% endif %}
@@ -51,7 +51,7 @@
 
                 <div>
                     <h3 class="text-md font-semibold text-gray-600 dark:text-gray-400 sm:text-lg md:text-xl">Explanation</h3>
-                    <pre class="flex mt-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900 p-3 rounded">
+                    <pre class="flex mt-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900 p-3 rounded max-w-full max-h-64 overflow-auto">
                         {% if problem.explanation %}
                                 <p>{{ problem.explanation }}</p>
                         {% endif %}
@@ -63,28 +63,31 @@
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
                 <form method="POST" class="space-y-4">
                     {% csrf_token %}
-                    <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300 sm:text-base md:text-lg">Select Language</label>
-                    <select id="language" name="language" class="w-full mt-1 py-2 px-3 border rounded text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="python3">Python</option>
-                        <option value="javascript">JavaScript</option>
-                        <option value="java">Java</option>
-                        <option value="cpp">C++</option>
-                    </select>
-
+                    <label for="language" class=" text-xl font-medium text-gray-700 dark:text-gray-300 sm:text-2xl md:text-3xl">Select Language</label>
+                    <div class="flex items-center justify-between gap-4">
+                        
+                        <!-- Select Dropdown on the Right -->
+                        <select id="language" name="language" class="w-1/4 py-2 px-3 border rounded text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="python3">Python</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="java">Java</option>
+                            <option value="cpp">C++</option>
+                        </select>
+                        <!-- Run and Submit Buttons on the Left -->
+                        <div class="flex gap-2">
+                            <button type="submit" name="action" value="run" 
+                                class="bg-green-600 text-white py-2 px-5 rounded font-semibold shadow-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-700 transform transition-all duration-200 ease-out hover:scale-105"
+                            >Run</button>
+                            
+                            <button type="submit" name="action" value="submit" 
+                                class="bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-5 rounded font-semibold shadow-lg hover:from-blue-600 hover:to-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700 transform transition-all duration-200 ease-out hover:scale-105"
+                            >Submit</button>
+                        </div>
+                    </div>
+                    
                     <!-- Code Editor -->
                     <textarea id="code-editor" name="code" rows="10" class="w-full p-4 border dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500">{{ code|default:code_snippets.code }}</textarea>
 
-                    <!-- Run and Submit Buttons -->
-                    <div class="flex flex-col gap-4 md:flex-row">
-                        <button type="submit" name="action" value="run" 
-                            class="w-full bg-green-600 text-white py-2 px-5 rounded font-semibold shadow-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-700 transform transition-all duration-200 ease-out hover:scale-105"
-                        >Run</button>
-                        
-                        <button type="submit" name="action" value="submit" 
-                            class="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-5 rounded font-semibold shadow-lg hover:from-blue-600 hover:to-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700 transform transition-all duration-200 ease-out hover:scale-105"
-                        >Submit</button>
-                    </div>
-                    
                 </form>
             </div>
         </div>
@@ -110,8 +113,11 @@
                 const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
                     lineNumbers: true,
                     mode: 'python',
-                    theme: 'monokai'
+                    theme: 'monokai',
+                    viewportMargin: Infinity, // Ensures the editor height adjusts to content
+                    height: 'auto'
                 });
+                editor.setSize(null, '400px');
         
                 // Change editor mode based on selected language
                 document.getElementById('language').addEventListener('change', function() {
@@ -195,7 +201,7 @@
             </div>
         </div>
         {% endif %}
-    </div>
+    {% comment %} </div> {% endcomment %}
 </div>
 
 {% endblock %}

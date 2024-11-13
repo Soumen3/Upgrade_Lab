@@ -49,10 +49,19 @@
                     document.getElementById('file-content').innerHTML = `<p class="text-2xl dark:text-white">Loading...</p>`;
                     
                     fetch(`/vcs/repositories/${repoId}/files/${fileId}/`)
-                        .then(response => response.text())
-                        .then(data => {
-                            document.getElementById('file-content').innerHTML = `<pre class="dark:text-white">${data}</pre>`;
-                        });
+                    .then(response => {
+                        console.log(response);
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        document.getElementById('file-content').innerHTML = `<pre class="dark:text-white">${data}</pre>`;
+                    })
+                    .catch(error => {
+                        document.getElementById('file-content').innerHTML = `<p class="text-2xl dark:text-red-500">Error loading file: ${error.message}</p>`;
+                    });
                 });
             });
 

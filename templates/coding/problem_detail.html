@@ -32,11 +32,30 @@
                 
                 <div>
                     <h3 class="text-md font-semibold text-gray-600 dark:text-gray-400 sm:text-lg md:text-xl">Sample Input</h3>
-                    <pre class="mt-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900 p-3 rounded">{{ problem.sample_input }}</pre>
+                    <pre class="flex mt-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900 p-3 rounded">
+                        {% if problem.sample_input %}
+                                {% for var, val in problem.sample_input.0.items %}
+                                    <p class="mr-2">{{ var }}: {{ val }}</p>
+                                {% endfor %}
+                        {% endif %}
+                    </pre>
                 </div>
                 <div>
                     <h3 class="text-md font-semibold text-gray-600 dark:text-gray-400 sm:text-lg md:text-xl">Sample Output</h3>
-                    <pre class="mt-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900 p-3 rounded">{{ problem.sample_output }}</pre>
+                    <pre class="flex mt-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900 p-3 rounded">
+                        {% if problem.sample_output %}
+                                <p>{{ problem.sample_output.0 }}</p>
+                        {% endif %}
+                    </pre>
+                </div>
+
+                <div>
+                    <h3 class="text-md font-semibold text-gray-600 dark:text-gray-400 sm:text-lg md:text-xl">Explanation</h3>
+                    <pre class="flex mt-2 text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-900 p-3 rounded">
+                        {% if problem.explanation %}
+                                <p>{{ problem.explanation }}</p>
+                        {% endif %}
+                    </pre>
                 </div>
             </div>
 
@@ -53,19 +72,17 @@
                     </select>
 
                     <!-- Code Editor -->
-                    <textarea id="code-editor" name="code" rows="10" class="w-full p-4 border dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500">{{ code }}</textarea>
+                    <textarea id="code-editor" name="code" rows="10" class="w-full p-4 border dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500">{{ code|default:code_snippets.code }}</textarea>
 
                     <!-- Run and Submit Buttons -->
                     <div class="flex flex-col gap-4 md:flex-row">
                         <button type="submit" name="action" value="run" 
-                        class="w-full bg-green-600 text-white py-2 px-5 rounded font-semibold shadow-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-700 transform transition-all duration-200 ease-out hover:scale-105">
-                        Run
-                        </button>
+                            class="w-full bg-green-600 text-white py-2 px-5 rounded font-semibold shadow-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-700 transform transition-all duration-200 ease-out hover:scale-105"
+                        >Run</button>
                         
                         <button type="submit" name="action" value="submit" 
-                                class="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-5 rounded font-semibold shadow-lg hover:from-blue-600 hover:to-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700 transform transition-all duration-200 ease-out hover:scale-105">
-                            Submit
-                        </button>
+                            class="w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-5 rounded font-semibold shadow-lg hover:from-blue-600 hover:to-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700 transform transition-all duration-200 ease-out hover:scale-105"
+                        >Submit</button>
                     </div>
                     
                 </form>
@@ -121,11 +138,24 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
             <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 sm:text-xl md:text-2xl">Public Test Cases:</h3>
             {% for ans in result %}
-                <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600">
-                    <p class="text-sm sm:text-base">{{ ans.input_set }} - Expected: {{ ans.expected_output }} - Your Output: {{ ans.actual_output }}</p>
-                    <span class="{% if ans.is_match %}text-green-600{% else %}text-red-600{% endif %}">{% if ans.is_match %}✅ Match{% else %}❌ Mismatch{% endif %}</span>
-                </div>
-            {% endfor %}
+                    <div class="bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-md p-4">
+                        <p class="text-sm sm:text-base text-gray-700 dark:text-gray-400">
+                            <span class="text-gray-500 font-semibold text-lg">Input: </span>
+                            {% if ans.input_set %}
+                                {% for var, val in ans.input_set.items %}
+                                    <span class="mr-2">{{ var }}: {{ val }}</span>
+                                {% endfor %}
+                            {% endif %}
+
+                        </p>
+                        <p class="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                            <span class="text-gray-500">Your Output:</span> {{ ans.actual_output }}</p>
+                        <p class="text-sm sm:text-base text-gray-700 dark:text-gray-300"><span class="text-gray-500">Expected Output:</span> {{ ans.expected_output }}</p>
+                        <span class="{% if ans.is_match %}text-green-600{% else %}text-red-600{% endif %}">
+                            {% if ans.is_match %}✅ Match{% else %}❌ Mismatch{% endif %}
+                        </span>
+                    </div>
+                {% endfor %}
         </div>
         {% endif %}
 
@@ -138,15 +168,25 @@
         </div>
         {% endif %}
 
+        {% comment %} Private Test cases  {% endcomment %}
         {% if all_results %}
         <div class="mt-6 space-y-6">
             <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 sm:text-xl md:text-2xl">Test Case Results:</h3>
             <div class="space-y-4">
                 {% for result in all_results %}
                     <div class="bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-md p-4">
-                        <p class="text-sm sm:text-base text-gray-700 dark:text-gray-400">{{ result.input_set }}</p>
-                        <p class="text-sm sm:text-base text-gray-700 dark:text-gray-300">Your Output: {{ result.actual_output }}</p>
-                        <p class="text-sm sm:text-base text-gray-700 dark:text-gray-300">Expected Output: {{ result.expected_output }}</p>
+                        <p class="text-sm sm:text-base text-gray-700 dark:text-gray-400">
+                            <span class="text-gray-500 font-semibold text-lg">Input: </span>
+                            {% if result.input_set %}
+                                {% for var, val in result.input_set.items %}
+                                    <span class="mr-2">{{ var }}: {{ val }}</span>
+                                {% endfor %}
+                            {% endif %}
+
+                        </p>
+                        <p class="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                            <span class="text-gray-500">Your Output:</span> {{ result.actual_output }}</p>
+                        <p class="text-sm sm:text-base text-gray-700 dark:text-gray-300"><span class="text-gray-500">Expected Output:</span> {{ result.expected_output }}</p>
                         <span class="{% if result.is_match %}text-green-600{% else %}text-red-600{% endif %}">
                             {% if result.is_match %}✅ Match{% else %}❌ Mismatch{% endif %}
                         </span>

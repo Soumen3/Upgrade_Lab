@@ -4,7 +4,8 @@ from .models import Problem, TestCase, CodeSnippet
 class ProblemForm(forms.ModelForm):
     class Meta:
         model = Problem
-        fields = ['title', 'description', 'difficulty_level', 'sample_input', 'sample_output', 'tags']
+        # fields = ['title', 'description', 'difficulty_level', 'sample_input', 'sample_output',  'tags']
+        fields = '__all__'
         help_texts = {
             'sample_input': 'Provide sample input in JSON format. e.g. [{"input1": "value1"}, {"input2": "value2"}]',
             'sample_output': 'Provide sample output in JSON format. ["output1", "output2"]'

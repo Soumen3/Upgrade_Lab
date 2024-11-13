@@ -14,6 +14,7 @@ class Problem(models.Model):
     )
     sample_input = models.JSONField(null=True, blank=True)
     sample_output = models.JSONField(null=True, blank=True)
+    explanation = models.TextField(null=True, blank=True)
     tags = models.CharField(max_length=200, help_text="Comma-separated tags")
 
     def __str__(self):

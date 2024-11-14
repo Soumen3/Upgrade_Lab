@@ -7,6 +7,7 @@ import zipfile
 from pathlib import Path
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
+from django.contrib.auth.models import User
 
 
 @login_required

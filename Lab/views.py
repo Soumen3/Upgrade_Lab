@@ -4,14 +4,16 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.db.models import Q
 from .forms import UserDetailForm
 from .models import UserDetail
+from vcs.models import Repository
 
 # Create your views here.
 def home(request):
 	return render(request, 'Lab/home.html')
 
-@login_required
+# @login_required
 def user_profile(request, id, username):
     context = {}
     user = get_object_or_404(User, id=id, username=username)
@@ -54,3 +56,26 @@ def chatbot(request):
         response = ask_chatbot(prompt, max_tokens=1024)
         return JsonResponse({'response': response})
     return render(request, 'Lab/home.html', {'response': response})
+
+
+
+
+def search(request):
+    query = request.GET.get('query')
+
+    if query:
+        repositories = Repository.objects.filter(name__icontains=query)
+        users = User.objects.filter(
+            Q(username__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query) |
+            Q(userdetail__institute__icontains=query)
+        )
+        
+
+    context = {
+        'repositories': repositories,
+        'users': users.distinct(),
+        'query': query,
+    }
+    return render(request, 'Lab/search_results.html', context)

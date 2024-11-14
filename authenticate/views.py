@@ -24,8 +24,10 @@ def user_login(request):
         return redirect('home')
 
     if request.method == 'POST':
-        form = LoginForm(request, data=request.POST)
+        print("Post request received")
+        form = LoginForm(request, request.POST)
         if form.is_valid():
+            print("Form is valid")
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             user = authenticate(request, username=username, password=password)
@@ -35,7 +37,9 @@ def user_login(request):
                 messages.success(request, 'User logged in successfully')
                 return redirect('home')
             else:
-                messages.info(request, 'Username or password is incorrect')
+                messages.error(request, 'Username or password is incorrect')
+        else:
+            messages.error(request, 'Form data is invalid! Try again.')
         
     context['form']= LoginForm()
     return render(request, 'authenticate/user_login.html', context)

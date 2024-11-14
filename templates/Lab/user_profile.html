@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block body %}
-<div class="container mx-auto px-4">
+<div class=" px-4">
     <div class="flex flex-col items-center justify-center mt-10">
         <div class="w-32 h-32 rounded-full overflow-hidden shadow-lg">
             <img class="w-full h-full object-cover" src="{% if user_detail.profile_pic %}{{ user_detail.profile_pic.url }}{% else %}{% static "Lab/media/default-profile.jpg" %}{% endif %}" alt="Rounded avatar">

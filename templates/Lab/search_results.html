@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+<div class="px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-white">Search Results</h1>
+
+    {% if query %}
+        <p class="text-gray-500 dark:text-gray-400 mb-4">Results for "{{ query }}":</p>
+    {% endif %}
+
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold dark:text-white">Repositories</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+            {% for repository in repositories %}
+                <a href="{% url 'repository_detail' repository.id %}" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex flex-col hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white">{{ repository.name }}</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2">{{ repository.description }}</p>
+                    <p class="text-gray-800 dark:text-white mt-2">Created by: {{ repository.owner.username }}</p>
+                </a>
+            {% empty %}
+                <p class="text-gray-500 dark:text-gray-400">No repositories found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div>
+        <h2 class="text-2xl font-semibold dark:text-white">Users</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+            {% for user in users %}
+                <a href="{% url 'user_profile' user.id user.username %}" class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 flex hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <div class="w-24 h-24 rounded-full overflow-hidden shadow-lg flex-shrink-0">
+                        <img class="w-full h-full object-cover rounded-full" src="{% if user.userdetail.profile_pic %}{{ user.userdetail.profile_pic.url }}{% else %}{% static "Lab/media/default-profile.jpg" %}{% endif %}" alt="Profile Picture">
+                    </div>
+                    <div class="ml-4 flex flex-col justify-center">
+                        <p class="text-lg font-semibold text-gray-800 dark:text-white">{{ user.first_name }} {{ user.last_name }}</p>
+                        <p class="text-gray-800 dark:text-white">@{{ user.username }}</p>
+                        <p class="text-gray-500 dark:text-gray-400">{{ user.userdetail.bio }}</p>
+                        <p class="text-gray-500 dark:text-gray-400">{{ user.userdetail.institute }}</p>
+                    </div>
+                </a>
+            {% empty %}
+                <p class="text-gray-500 dark:text-gray-400">No users found.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

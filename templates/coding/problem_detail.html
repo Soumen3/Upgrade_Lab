@@ -75,11 +75,11 @@
                         </select>
                         <!-- Run and Submit Buttons on the Left -->
                         <div class="flex gap-2">
-                            <button type="submit" name="action" value="run" 
+                            <button type="submit" name="action" value="run" id="runButton"
                                 class="bg-green-600 text-white py-2 px-5 rounded font-semibold shadow-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-700 transform transition-all duration-200 ease-out hover:scale-105"
                             >Run</button>
                             
-                            <button type="submit" name="action" value="submit" 
+                            <button type="submit" name="action" value="submit" id="submitButton" 
                                 class="bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-5 rounded font-semibold shadow-lg hover:from-blue-600 hover:to-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700 transform transition-all duration-200 ease-out hover:scale-105"
                             >Submit</button>
                         </div>
@@ -141,7 +141,7 @@
 
         <!-- Public Test Cases -->
         {% if result %}
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4" id="public-results">
             <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 sm:text-xl md:text-2xl">Public Test Cases:</h3>
             {% for ans in result %}
                     <div class="bg-gray-50 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-md p-4">
@@ -176,7 +176,7 @@
 
         {% comment %} Private Test cases  {% endcomment %}
         {% if all_results %}
-        <div class="mt-6 space-y-6">
+        <div class="mt-6 space-y-6" id="private-results">
             <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300 sm:text-xl md:text-2xl">Test Case Results:</h3>
             <div class="space-y-4">
                 {% for result in all_results %}
@@ -201,6 +201,19 @@
             </div>
         </div>
         {% endif %}
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const publicResultsDiv = document.getElementById('public-results');
+                const privateResultsDiv=document.getElementById('private-results');
+                if (publicResultsDiv) {
+                    publicResultsDiv.scrollIntoView({ behavior: 'smooth' });
+                }
+                else if(privateResultsDiv){
+                    privateResultsDiv.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        </script>
     {% comment %} </div> {% endcomment %}
 </div>
 

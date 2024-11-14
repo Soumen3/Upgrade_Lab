@@ -2,24 +2,33 @@
 {% load static %}
 
 {% block body %}
-<div class="px-4 dark:bg-gray-800 min-h-screen">
-    <div class="flex flex-col items-center justify-center">
-        <div class="w-32 h-32 rounded-full overflow-hidden shadow-lg mt-10">
-            <img class="w-full h-full object-cover" src="{% if user.userdetail.profile_pic%}{{ request.user.userdetail.profile_pic.url }}{% else %}{% static "Lab/media/default-profile.jpg" %}{% endif %}" alt="Rounded avatar">
+<div class="container mx-auto px-4">
+    <div class="flex flex-col items-center justify-center mt-10">
+        <div class="w-32 h-32 rounded-full overflow-hidden shadow-lg">
+            <img class="w-full h-full object-cover" src="{% if user_detail.profile_pic %}{{ user_detail.profile_pic.url }}{% else %}{% static "Lab/media/default-profile.jpg" %}{% endif %}" alt="Rounded avatar">
         </div>
-        <h2 class="mt-4 text-2xl font-semibold dark:text-white">{{ user.username }}</h2>
-        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ user.email }}</p>
+        <h2 class="mt-4 text-2xl font-semibold dark:text-white">{{ user_profile.username }}</h2>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">{{ user_profile.email }}</p>
     </div>
     <div class="mt-10">
         <h3 class="text-xl font-semibold dark:text-white">Profile</h3>
         <div class="mt-4">
-            <p class="text-gray-500 dark:text-gray-400">First Name: {{ user.first_name }}</p>
-            <p class="text-gray-500 dark:text-gray-400">Last Name: {{ user.last_name }}</p>
-            <p class="text-gray-500 dark:text-gray-400">Date Joined: {{ user.date_joined }}</p>
+            <p class="text-gray-500 dark:text-gray-400">First Name: {{ user_profile.first_name }}</p>
+            <p class="text-gray-500 dark:text-gray-400">Last Name: {{ user_profile.last_name }}</p>
+            <p class="text-gray-500 dark:text-gray-400">Date Joined: {{ user_profile.date_joined }}</p>
+            <p class="text-gray-500 dark:text-gray-400">Bio: {{ user_detail.bio }}</p>
+            <p class="text-gray-500 dark:text-gray-400">Location: {{ user_detail.location }}</p>
+            <p class="text-gray-500 dark:text-gray-400">Birth Date: {{ user_detail.birth_date }}</p>
+            <p class="text-gray-500 dark:text-gray-400">Role: {{ user_detail.get_role_display }}</p>
+            <p class="text-gray-500 dark:text-gray-400">Institute: {{ user_detail.institute }}</p>
         </div>
-        <a href="{% url "add_user_detail" request.user.id request.user.username %}"
-            class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-        >Complete Profile</a>
+        {% if request.user == user_profile %}
+            {% if not user_detail.bio or not user_detail.location or not user_detail.birth_date or not user_detail.profile_pic or not user_detail.role or not user_detail.institute %}
+                <a href="{% url 'add_user_detail' user_profile.id user_profile.username %}"
+                    class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+                >Complete Profile</a>
+            {% endif %}
+        {% endif %}
     </div>
 </div>
 {% endblock body %}

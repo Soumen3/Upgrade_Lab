@@ -20,6 +20,8 @@ def user_signup(request):
 
 def user_login(request):
     context ={}
+    if request.user.is_authenticated:
+        return redirect('home')
 
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)

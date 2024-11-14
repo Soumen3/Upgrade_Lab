@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block body %}
-<div class="min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white py-8">
+<div class="min-h-screen py-8">
     <div class="max-w-5xl mx-auto px-4">
         <!-- Title -->
         <h1 class="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-white">Problem List</h1>
@@ -15,7 +15,7 @@
                     <label for="difficulty" class="text-gray-700 dark:text-gray-300 font-medium">
                         Difficulty:
                     </label>
-                    <select name="difficulty" id="difficulty" class="w-full md:w-auto border rounded-md dark:bg-gray-700 dark:text-white p-2">
+                    <select name="difficulty" id="difficulty" class="w-full md:w-auto border rounded-md dark:bg-gray-700 p-2">
                         <option value="">All</option>
                         <option value="easy">Easy</option>
                         <option value="medium">Medium</option>
@@ -25,7 +25,7 @@
                 <!-- Tag Input -->
                 <input 
                     type="text" name="tag" placeholder="Tag" 
-                    class="border rounded-md dark:bg-gray-700 dark:text-white p-2 w-full md:flex-1"
+                    class="border rounded-md dark:bg-gray-700 p-2 w-full md:flex-1"
                 />
                 <!-- Filter Button -->
                 <button type="submit" 

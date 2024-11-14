@@ -1,0 +1,29 @@
+/* WebKit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 5px; /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: none; /* Background of the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners for the scrollbar thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #141313; /* Color of the scrollbar thumb on hover */
+}
+
+/* Firefox */
+html {
+    scrollbar-width: auto; /* Width of the scrollbar */
+    scrollbar-color: #888888 none; /* Color of the scrollbar thumb and track */
+}
+
+/* Edge, IE, and other browsers */
+body {
+    scrollbar-width:auto; /* Width of the scrollbar */
+    scrollbar-color: #6f7070 #f1f1f100; /* Color of the scrollbar thumb and track */
+}

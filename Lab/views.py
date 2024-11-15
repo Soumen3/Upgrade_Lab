@@ -31,22 +31,27 @@ def user_profile(request, id, username):
 
 @login_required
 def add_user_detail(request, id, username):
+    # Check if the user already has a UserDetail
+    user_detail = UserDetail.objects.filter(user=request.user).first()
+
     if request.method == 'POST':
-        form = UserDetailForm(request.POST, request.FILES)
+        form = UserDetailForm(request.POST, request.FILES, instance=user_detail)
         if form.is_valid():
             user_detail = form.save(commit=False)
-            user_detail.user = request.user
+            user_detail.user = request.user  # Ensure user is assigned
             user_detail.save()
             messages.success(request, 'Profile updated successfully')
             return render(request, 'Lab/user_profile.html', {'user': request.user})
         else:
             messages.error(request, 'Profile update failed')
     else:
-        user_detail=get_object_or_404(UserDetail, user=request.user)
-        if user_detail:
-            form = UserDetailForm(instance=user_detail)
-        else:
+        # If no UserDetail exists for the user, create an empty form
+        if not user_detail:
             form = UserDetailForm()
+        else:
+            # If a UserDetail exists, pass the existing object to the form
+            form = UserDetailForm(instance=user_detail)
+
     return render(request, 'Lab/add_user_detail.html', {'form': form})
 
 def chatbot(request):

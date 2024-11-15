@@ -2,29 +2,69 @@
 {% load static %}
 
 {% block body %}
-    {% comment %} user details form  {% endcomment %}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Add User Details</h4>
+<div class="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4">
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-md shadow-md border border-gray-300 dark:border-gray-700">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h4 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Add User Details</h4>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Fill in the details below to update your profile information.
+            </p>
+        </div>
+
+        <!-- Form -->
+        <div class="p-6">
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Two-column Layout -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="flex flex-col">
+                            <label for="id_bio" class="text-lg font-medium text-gray-700 dark:text-gray-200">Bio</label>
+                            {{ form.bio }}
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="id_location" class="text-lg font-medium text-gray-700 dark:text-gray-200">Location</label>
+                            {{ form.location }}
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="id_role" class="text-lg font-medium text-gray-700 dark:text-gray-200">Role</label>
+                            {{ form.role }}
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <form method="POST" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            {{form.as_p}}
-                            <button type="submit" 
-                                class="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-                            >Submit</button>
-                        </form>
-                        <a href="{% url 'user_profile' user.id user.username %}" 
-                            class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-                        >Cancel</a>
+
+                    <div class="space-y-4">
+                        <div class="flex flex-col">
+                            <label for="id_birth_date" class="text-sm font-medium text-gray-700 dark:text-gray-200">Birth Date</label>
+                            {{ form.birth_date }}
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="id_profile_pic" class="text-sm font-medium text-gray-700 dark:text-gray-200">Profile Picture</label>
+                            {{ form.profile_pic }}
+                        </div>
+                        <div class="flex flex-col">
+                            <label for="id_institute" class="text-sm font-medium text-gray-700 dark:text-gray-200">Institute</label>
+                            {{ form.institute }}
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-700 mt-6">
+                    <a href="{% url 'user_profile' user.id user.username %}" 
+                        class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium text-sm transition-colors"
+                    >
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-md transition-colors"
+                    >
+                        Submit
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-
+</div>
 {% endblock body %}

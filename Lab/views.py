@@ -62,6 +62,8 @@ def chatbot(request):
 
 def search(request):
     query = request.GET.get('query')
+    repositories = None
+    users = None
 
     if query:
         repositories = Repository.objects.filter(name__icontains=query)
@@ -71,11 +73,12 @@ def search(request):
             Q(last_name__icontains=query) |
             Q(userdetail__institute__icontains=query)
         )
+        users = users.distinct()
         
 
     context = {
         'repositories': repositories,
-        'users': users.distinct(),
+        'users': users,
         'query': query,
     }
     return render(request, 'Lab/search_results.html', context)

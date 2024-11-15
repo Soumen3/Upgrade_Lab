@@ -77,11 +77,27 @@
                         <div class="flex gap-2">
                             <button type="submit" name="action" value="run" id="runButton"
                                 class="bg-green-600 text-white py-2 px-5 rounded font-semibold shadow-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-700 transform transition-all duration-200 ease-out hover:scale-105"
-                            >Run</button>
-                            
+                            >
+                                <span class="button-text">Run</span>
+                                <span class="loading-spinner hidden">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                </span>
+                            </button>
+
                             <button type="submit" name="action" value="submit" id="submitButton" 
                                 class="bg-gradient-to-r from-blue-500 to-blue-700 text-white py-2 px-5 rounded font-semibold shadow-lg hover:from-blue-600 hover:to-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-700 transform transition-all duration-200 ease-out hover:scale-105"
-                            >Submit</button>
+                            >
+                                <span class="button-text">Submit</span>
+                                <span class="loading-spinner hidden">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                </span>
+                            </button>
                         </div>
                     </div>
                     
@@ -135,6 +151,26 @@
                             editor.setValue(data.code);
                         });
                 });
+
+                document.getElementById('runButton').addEventListener('click', function(event) {
+                    // console.log('Run button clicked');
+                    handleButtonClick(event, this);
+                });
+
+                document.getElementById('submitButton').addEventListener('click', function(event) {
+                    handleButtonClick(event, this);
+                });
+
+                function handleButtonClick(event, button) {
+                    console.log('Button clicked');
+                    button.querySelector('.button-text').classList.add('hidden');
+                    button.querySelector('.loading-spinner').classList.remove('hidden');
+                    // Add your form submission logic here
+                    // const form = document.querySelector('#code-form');
+                    // form.submit();
+                     
+
+                }
             });
         </script>
         

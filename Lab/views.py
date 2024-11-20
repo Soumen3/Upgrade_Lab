@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_list_or_404, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .ai import ask_chatbot
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -41,9 +41,10 @@ def add_user_detail(request, id, username):
             user_detail.user = request.user  # Ensure user is assigned
             user_detail.save()
             messages.success(request, 'Profile updated successfully')
-            return render(request, 'Lab/user_profile.html', {'user': request.user})
+            return redirect('user_profile', id=request.user.id, username=request.user.username)
         else:
             messages.error(request, 'Profile update failed')
+
     else:
         # If no UserDetail exists for the user, create an empty form
         if not user_detail:

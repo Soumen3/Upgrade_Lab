@@ -14,7 +14,7 @@
 
         <!-- Form -->
         <div class="p-6">
-            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            <form id="user-detail-form" method="POST" enctype="multipart/form-data" class="space-y-6">
                 {% csrf_token %}
                 
                 <!-- Two-column Layout -->
@@ -42,6 +42,8 @@
                         <div class="flex flex-col">
                             <label for="id_profile_pic" class="text-sm font-medium text-gray-700 dark:text-gray-200">Profile Picture</label>
                             {{ form.profile_pic }}
+                            <small class="text-gray-500 dark:text-gray-400">Max size: 2 MB</small>
+                            <p id="image-size-error" class="text-red-500 hidden">The profile picture size should not exceed 2 MB.</p>
                         </div>
                         <div class="flex flex-col">
                             <label for="id_institute" class="text-sm font-medium text-gray-700 dark:text-gray-200">Institute</label>
@@ -67,4 +69,22 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const profilePicInput = document.getElementById('id_profile_pic');
+        const imageSizeError = document.getElementById('image-size-error');
+
+        profilePicInput.addEventListener('change', function() {
+            const maxSize = 2 * 1024 * 1024; // 2 MB
+            const profilePic = profilePicInput.files[0];
+
+            if (profilePic && profilePic.size > maxSize) {
+                imageSizeError.classList.remove('hidden');
+                profilePicInput.value = ''; // Clear the input
+            } else {
+                imageSizeError.classList.add('hidden');
+            }
+        });
+    });
+</script>
 {% endblock body %}

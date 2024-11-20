@@ -15,7 +15,7 @@ def problem_list_view(request):
     problems = Problem.objects.all()
     user_detail = None
     if request.user.is_authenticated:
-        user_detail = UserProfile.objects.get(user=request.user)
+        user_detail = UserProfile.objects.get_or_create(user=request.user)[0]
 
     # Filter by difficulty (optional)
     difficulty = request.GET.get('difficulty')
@@ -39,6 +39,7 @@ def problem_detail_view(request, pk):
     context = {}
     problem = get_object_or_404(Problem, pk=pk)
     language = 'python3'
+    context['selected_language'] = language
 
     if request.method == 'POST':
         code = request.POST.get('code')
@@ -48,12 +49,16 @@ def problem_detail_view(request, pk):
         output_data = problem.sample_output
 
         context['code'] = code
+        print(language)
         context['selected_language'] = language  # Pass the selected language to the context
 
         if action == 'run':
             try:
                 run_context = handle_run_action(code, input_data, output_data, language)
                 context.update(run_context)
+                print("context: ", context)
+                if context.get('error'):
+                    messages.error(request, context['error'])
             except Exception as e:
                 messages.error(request, "Something error occured!")
                 print("Error: ", e)
@@ -79,7 +84,7 @@ def problem_detail_view(request, pk):
                 print("Error: ",e)
 
     context['problem'] = problem
-    if Submission.objects.filter(user=request.user, problem=problem):
+    if Submission.objects.filter(user=request.user, problem=problem, language=language):
         code_snippets = Submission.objects.get(user=request.user, problem=problem, language=language)
     else:
         code_snippets = CodeSnippet.objects.get(problem=problem, language=language)

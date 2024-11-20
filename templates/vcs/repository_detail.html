@@ -1,6 +1,53 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block css %}
+    <!-- Prism.js CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+    <!-- Prism.js Core -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js"></script>
+
+    <!-- Prism.js Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+
+    <!-- Prism.js Languages -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-ruby.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-typescript.min.js"></script>
+    <style>
+        /* Override Prism.js background color */
+        pre[class*="language-"] {
+            background-color: #252632; /* Transparent background color */
+            width: 100%; /* Set the width to 100% */
+            height: 100%; /* Set the height to 100% */
+            overflow: auto; /* Enable scrolling if needed */
+        }
+    
+        /* Optional: Customize the text color */
+        pre[class*="language-"] code {
+            color: #f8f8f2; /* Light text color */
+        }
+    
+        /* Optional: Customize the line number background color */
+        .line-numbers .line-numbers-rows {
+            background-color: #252632; /* Transparent background color */
+        }
+    
+        .line-numbers .line-numbers-rows > span:before {
+            color: #888; /* Line number text color */
+        }
+    </style>
+{% endblock css %}
+
 {% block body %}
 <div class="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4">
     <!-- Repository Header -->
@@ -37,7 +84,7 @@
         </div>
 
         <div class="col-span-3">
-            <div id="file-content" class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 h-[75vh] overflow-auto">
+            <div id="file-content" class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 h-[75vh] overflow-hidden">
                 <p class="text-center text-lg text-gray-700 dark:text-gray-400">
                     Select a file to view its content
                 </p>
@@ -51,12 +98,36 @@
     document.addEventListener('DOMContentLoaded', function () {
         // Load file content on click
         const fileLinks = document.querySelectorAll('.file-link');
+        
+        Prism.highlightAll(); // Ensure Prism highlights the new content
+
+        // Mapping of file extensions to Prism.js language identifiers
+        const extensionToLanguageMap = {
+            'js': 'javascript',
+            'py': 'python',
+            'html': 'markup',
+            'css': 'css',
+            'java': 'java',
+            'cpp': 'cpp',
+            'c': 'c',
+            'rb': 'ruby',
+            'php': 'php',
+            'ts': 'typescript',
+            // Add more mappings as needed
+        };
+
         fileLinks.forEach(link => {
             link.addEventListener('click', function (event) {
                 event.preventDefault();
 
                 const fileId = this.getAttribute('data-file-id');
                 const repoId = this.getAttribute('data-repo-id');
+                const fileName = this.textContent.trim();
+                const fileExtension = fileName.split('.').pop();
+                
+                const language = extensionToLanguageMap[fileExtension] || 'plaintext';
+                console.log(language);
+
 
                 document.getElementById('file-content').innerHTML = `
                     <p class="text-center text-lg text-gray-700 dark:text-gray-400">
@@ -71,8 +142,14 @@
                         return response.text();
                     })
                     .then(data => {
-                        document.getElementById('file-content').innerHTML = `
-                            <pre class="whitespace-pre-wrap text-sm bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">${data}</pre>`;
+                        if (language === 'plaintext') {
+                            document.getElementById('file-content').innerHTML = `
+                                <pre class="line-numbers"><code>${data}</code></pre>`;
+                        } else {
+                            document.getElementById('file-content').innerHTML = `
+                                <pre class="line-numbers"><code class="language-${language}">${Prism.highlight(data, Prism.languages[language], language)}</code></pre>`;
+                            Prism.highlightAll(); // Ensure Prism highlights the new content
+                        }
                     })
                     .catch(error => {
                         document.getElementById('file-content').innerHTML = `

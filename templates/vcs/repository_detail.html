@@ -2,91 +2,81 @@
 {% load static %}
 
 {% block body %}
-    <div class="content   h-screen">
-        <div class="details  ">
-            <p class="text-3xl ">{{ repository.name }}</p>
-            <p class="">{{ repository.description }}</p>
-            <p class="">Owner: {{ repository.owner.username }}</p>
-            <p class="">Created at: {{ repository.created_at }}</p>
-        </div>
-        <div class="flex border-2 m-2 h-auto">
-            <div class="w-1/4 p-4 border-r-2 border-gray-800 dark:border-gray-50">
-                <h2 class="">Files</h2>
-                <ul id="file-list">
-                    {% for folder, contents in files.items %}
-                        {% include 'components/file_tree.html' with folder=folder contents=contents %}
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="w-3/4 p-4" id="file-content">
-                <p class="text-2xl ">Select a file to view its content</p>
+<div class="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4">
+    <!-- Repository Header -->
+    <div class="border-b border-gray-300 dark:border-gray-700 pb-4 mb-6">
+       
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+           
+            <h1 class="text-3xl md:text-4xl font-semibold text-gray-800 dark:text-white flex items-center">
+                <i class="fas fa-book text-purple-500 mr-4"></i>
+                {{ repository.name }}
+            </h1>
+            
+            <p class="text-base md:text-lg text-gray-600 dark:text-gray-400 mt-2 mb-4">{{ repository.description }}</p>
+            
+            <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-500">
+                <p>Owner: <span class="font-medium text-gray-700 dark:text-gray-300">{{ repository.owner.username }}</span></p>
+                <p>Created: <span class="font-medium text-gray-700 dark:text-gray-300">{{ repository.created_at|date:"F j, Y" }}</span></p>
             </div>
         </div>
     </div>
+    
+    <!-- Main Content -->
+    <div class="grid grid-cols-4 gap-4">
 
-    <style>
-        .folder {
-            cursor: pointer;
-        }
-        .nested {
-            display: none;
-        }
-        .active {
-            display: block;
-        }
-    </style>
+        <div class="col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Files</h2>
+            <ul class="space-y-2" id="file-list">
+                {% for folder, contents in files.items %}
+                    {% include 'components/file_tree.html' with folder=folder contents=contents %}
+                {% endfor %}
+            </ul>
+        </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileLinks = document.querySelectorAll('.file-link');
-            fileLinks.forEach(link => {
-                link.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    const fileId = this.getAttribute('data-file-id');
-                    const repoId = this.getAttribute('data-repo-id');
-                    
-                    // Show loading message
-                    document.getElementById('file-content').innerHTML = `<p class="text-2xl ">Loading...</p>`;
-                    
-                    fetch(`/vcs/repositories/${repoId}/files/${fileId}/`)
+        <div class="col-span-3">
+            <div id="file-content" class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 h-[75vh] overflow-auto">
+                <p class="text-center text-lg text-gray-700 dark:text-gray-400">
+                    Select a file to view its content
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Load file content on click
+        const fileLinks = document.querySelectorAll('.file-link');
+        fileLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+                const fileId = this.getAttribute('data-file-id');
+                const repoId = this.getAttribute('data-repo-id');
+
+                document.getElementById('file-content').innerHTML = `
+                    <p class="text-center text-lg text-gray-700 dark:text-gray-400">
+                        Loading...
+                    </p>`;
+
+                fetch(`/vcs/repositories/${repoId}/files/${fileId}/`)
                     .then(response => {
-                        console.log(response);
                         if (!response.ok) {
-                            throw new Error('Network response was not ok');
+                            throw new Error('File not found');
                         }
                         return response.text();
                     })
                     .then(data => {
-                        document.getElementById('file-content').innerHTML = `<pre class="">${data}</pre>`;
+                        document.getElementById('file-content').innerHTML = `
+                            <pre class="whitespace-pre-wrap text-sm bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">${data}</pre>`;
                     })
                     .catch(error => {
-                        document.getElementById('file-content').innerHTML = `<p class="text-2xl dark:text-red-500">Error loading file: ${error.message}</p>`;
+                        document.getElementById('file-content').innerHTML = `
+                            <p class="text-red-500 text-center">Error: ${error.message}</p>`;
                     });
-                });
-            });
-
-            // Handle folder clicks to toggle visibility
-            const folders = document.querySelectorAll('.folder');
-            folders.forEach(folder => {
-                folder.addEventListener('click', function(event) {
-                    event.stopPropagation(); // Prevents triggering other event handlers
-
-                    // Access the nested <ul> element within the clicked folder's container
-                    const nestedList = this.querySelector('.nested');
-                    
-                    if (nestedList) {
-                        // Toggle visibility for the current folder only
-                        nestedList.classList.toggle('active');
-                        this.classList.toggle('folder-open');
-                    }
-                });
-            });
-            const files = document.querySelectorAll('.file');
-            files.forEach(file => {
-                file.addEventListener('click', function(event) {
-                    event.stopPropagation();
-                });
             });
         });
-    </script>
+    });
+</script>
 {% endblock body %}

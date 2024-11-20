@@ -1,13 +1,53 @@
-{% if contents.items %}
-    <li class="folder dark:text-white bg-gray-400 rounded-sm px-2 my-1">{{ folder }}
-        <ul class="nested">
-            {% for subfolder, subcontents in contents.items %}
-                {% include 'components/file_tree.html' with folder=subfolder contents=subcontents %}
-            {% endfor %}
-        </ul>
-    </li>
-{% else %}
-    <li class="dark:text-white file px-2">
-        <a href="#" class="file-link dark:text-white" data-file-id="{{ contents.id }}" data-repo-id="{{ contents.repository.id }}">{{ folder }}</a>
-    </li>
-{% endif %}
+<ul>
+    {% if contents.items %}
+        <!-- Folder -->
+        <li class="folder group flex flex-col rounded-md bg-gray-200 dark:bg-gray-700 my-1 cursor-pointer">
+            <div class="folder-header flex items-center px-2 py-1">
+                <i class="fas fa-folder mr-2 text-yellow-500"></i>
+                <span class="font-bold">{{ folder }}</span>
+            </div>
+
+            <ul class="nested hidden mt-1 ml-4">
+
+                {% for subfolder, subcontents in contents.items %}
+                    {% include 'components/file_tree.html' with folder=subfolder contents=subcontents %}
+                {% endfor %}
+            </ul>
+        </li>
+    {% else %}
+        <!-- File -->
+        <li class="file flex items-center px-2 py-1 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 my-1 mt-2">
+            <i class="fas fa-file mr-2 text-gray-500"></i>
+            <a href="#" class="file-link text-gray-700 dark:text-gray-200" 
+               data-file-id="{{ contents.id }}" 
+               data-repo-id="{{ contents.repository.id }}">{{ folder }}</a>
+        </li>
+    {% endif %}
+</ul>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Select all folder elements
+        const folders = document.querySelectorAll('.folder');
+    
+        folders.forEach(folder => {
+            folder.addEventListener('click', function (event) {
+                event.stopPropagation(); // Prevent bubbling to parent folders
+    
+                // Get the nested list and toggle visibility
+                const nested = folder.querySelector('.nested');
+                if (nested) {
+                    nested.classList.toggle('hidden');
+    
+                    // Change folder icon on toggle
+                    const icon = folder.querySelector('i');
+                    if (icon.classList.contains('fa-folder')) {
+                        icon.classList.replace('fa-folder', 'fa-folder-open');
+                    } else {
+                        icon.classList.replace('fa-folder-open', 'fa-folder');
+                    }
+                }
+            });
+        });
+    });
+</script>

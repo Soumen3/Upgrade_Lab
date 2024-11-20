@@ -9,7 +9,9 @@
         <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
            
             <h1 class="text-3xl md:text-4xl font-semibold text-gray-800 dark:text-white flex items-center">
-                <i class="fas fa-book text-purple-500 mr-4"></i>
+                <svg class="w-8 h-8 text-purple-500 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 {{ repository.name }}
             </h1>
             
@@ -26,7 +28,7 @@
     <div class="grid grid-cols-4 gap-4">
 
         <div class="col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Files</h2>
+            <p class="text-lg font-semibold text-gray-700 dark:text-gray-300 bg-gray-400 mb-4 text-center  rounded-lg">Files</p>
             <ul class="space-y-2" id="file-list">
                 {% for folder, contents in files.items %}
                     {% include 'components/file_tree.html' with folder=folder contents=contents %}
@@ -52,6 +54,7 @@
         fileLinks.forEach(link => {
             link.addEventListener('click', function (event) {
                 event.preventDefault();
+
                 const fileId = this.getAttribute('data-file-id');
                 const repoId = this.getAttribute('data-repo-id');
 
@@ -77,6 +80,43 @@
                     });
             });
         });
+
+        // Select all folder elements
+        const folders = document.querySelectorAll('.folder');
+    
+        folders.forEach(folder => {
+            folder.addEventListener('click', function (event) {
+                event.stopPropagation(); // Prevent bubbling to parent folders
+    
+                // Get the nested list and toggle visibility
+                const nested = folder.querySelector('.nested');
+                if (nested) {
+                    nested.classList.toggle('hidden');
+    
+                }
+            });
+        });
+        const files = document.querySelectorAll('.file');
+        files.forEach(file => {
+            file.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+        });
+
+
+        
     });
+
+    function heighlightFileName() {
+        const fileList = document.querySelectorAll(".file");
+        fileList.forEach(file => {
+            file.addEventListener("click", function(event) {
+                fileList.forEach(f => {
+                    f.classList.remove("bg-gray-300");
+                });
+                this.classList.add("bg-gray-300", "dark:bg-gray-600");
+            });
+        });
+    }
 </script>
 {% endblock body %}

@@ -9,6 +9,7 @@ def ask_chatbot(prompt: str, max_tokens: int = 512) -> str:
     template = """<s>[INST]Your name is 'Jarvis'. You are an assistant who helps users with various tasks on our website.
 You can intoroduce yourself to the users and provide instructions to assist them. 
 You are given a prompt to assist users with tasks such as logging in, registering, writing code, and uploading a repository.
+You can solve programming problem also.
 [/INST]{question}</s>"""
     
     prompt_template = PromptTemplate.from_template(template)

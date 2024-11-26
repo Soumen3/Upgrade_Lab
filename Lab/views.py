@@ -8,6 +8,7 @@ from django.db.models import Q
 from .forms import UserDetailForm
 from .models import UserDetail
 from vcs.models import Repository
+from coding.models import UserProfile
 
 # Create your views here.
 def home(request):
@@ -20,6 +21,11 @@ def user_profile(request, id, username):
     context['user_profile'] = user
     try:
         user_detail = UserDetail.objects.get(user=user)
+        repositories = Repository.objects.filter(owner=request.user)
+        context['repositories']=repositories
+        user_profile_details = UserProfile.objects.get(user=request.user)
+        solved_problems = user_profile_details.solved_problems.all()
+        context['solved_problems'] = solved_problems
     except UserDetail.DoesNotExist:
         user_detail = None
     context['user_detail'] = user_detail

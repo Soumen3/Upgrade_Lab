@@ -14,7 +14,9 @@
 			</button>
 
 			{% if request.user.is_authenticated %}
-			<a href="{% url "user_logout" %}" class="mx-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Log out</a>
+			<a href="{% url "user_logout" %}" class=" text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-1 py-2 flex flex-nowrap dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+				Log out &nbsp;{% heroicon_outline "arrow-left-start-on-rectangle" %}
+			</a>
 			<a href="{% url "user_profile" request.user.id request.user.username %}">
 				<img class="w-10 h-10 rounded-full" src="{% if request.user.userdetail.profile_pic %}{{ request.user.userdetail.profile_pic.url }}{% else %}{% static "Lab/media/default-profile.jpg" %}{% endif %}" alt="Rounded avatar">
 			</a>
@@ -25,9 +27,7 @@
 			{% endif %}
 
 			<button id="search-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-full text-sm p-2.5 md:hidden">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387a1 1 0 01-1.414 1.414l-4.387-4.387zM8 14a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd"></path>
-                </svg>
+                {% heroicon_outline "magnifying-glass" %}
             </button>
 
 			

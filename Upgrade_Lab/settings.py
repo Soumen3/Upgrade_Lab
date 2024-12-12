@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 	'django_browser_reload',
     'vcs',
     'storages',
+    'heroicons',
 ]
 
 TAILWIND_APP_NAME = 'theme'
@@ -76,6 +77,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+            ],
+            'builtins': [
+                "heroicons.templatetags.heroicons",
             ],
         },
     },
@@ -143,8 +147,8 @@ USE_L10N = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-# STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "static"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+# STATIC_ROOT = BASE_DIR / "static"
 
 
 # MEDIA_ROOT = BASE_DIR / "media"

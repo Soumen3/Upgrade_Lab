@@ -10,12 +10,11 @@ document.addEventListener('DOMContentLoaded', function () {
         recognition.interimResults = false;
         recognition.lang = 'en-US';
 
+        let isListening = false;
+
         recognition.onstart = function () {
             console.log('Voice recognition started. Try speaking into the microphone.');
             micIcon.classList.add('mic-active');
-            micIcon.innerHTML = `
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v4a1 1 0 102 0V7zm-1 8a3 3 0 01-3-3h2a1 1 0 002 0h2a3 3 0 01-3 3z" clip-rule="evenodd" />
-            `;
         };
 
         recognition.onresult = function (event) {
@@ -31,13 +30,16 @@ document.addEventListener('DOMContentLoaded', function () {
         recognition.onend = function () {
             console.log('Voice recognition ended.');
             micIcon.classList.remove('mic-active');
-            micIcon.innerHTML = `
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v4a1 1 0 102 0V7zm-1 8a3 3 0 01-3-3h2a1 1 0 002 0h2a3 3 0 01-3 3z" clip-rule="evenodd" />
-            `;
+            isListening = false;
         };
 
         voiceInputButton.addEventListener('click', function () {
-            recognition.start();
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+                isListening = true;
+            }
         });
     } else {
         console.warn('Web Speech API is not supported by this browser.');

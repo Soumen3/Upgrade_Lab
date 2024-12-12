@@ -1,3 +1,9 @@
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static "components/css/chatbot.css" %}">
+{% endblock css %}
+
 <!-- Chat Icon Button -->
 <div id="chatIcon" class="fixed bottom-4 right-5 bg-blue-600 text-white p-4 rounded-full shadow-lg cursor-pointer" aria-label="Open Chat">
     💬
@@ -25,6 +31,11 @@
         <form id="chatForm" class="flex items-center space-x-2" method="post" action="{% url 'chatbot' %}">
             {% csrf_token %}
             <input type="text" id="prompt" name="prompt" class="flex-1 p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200 placeholder-gray-400" placeholder="Type your message..." aria-label="Type your message">
+            <button type="button" id="voiceInput" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v4a1 1 0 102 0V7zm-1 8a3 3 0 01-3-3h2a1 1 0 002 0h2a3 3 0 01-3 3z" clip-rule="evenodd" />
+                </svg>
+            </button>
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Send</button>
         </form>
     </div>
@@ -32,6 +43,9 @@
 </div>
 
 
+{% block js %}
+    <script src="{% static "components/js/voiceInput.js" %}"></script>
+{% endblock js %}
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -53,37 +67,37 @@
 
         // Helper function to create a message element
         // Helper function to create a message element
-function createMessageElement(content, isUser = false, isError = false, isCode = false) {
-    const messageWrapper = document.createElement("div");
-    messageWrapper.classList.add("flex", "mb-1", "w-full");
+        function createMessageElement(content, isUser = false, isError = false, isCode = false) {
+            const messageWrapper = document.createElement("div");
+            messageWrapper.classList.add("flex", "mb-1", "w-full");
 
-    // Adjust alignment: user messages (right) and bot messages (left)
-    if (isUser) {
-        messageWrapper.classList.add("justify-end");
-    } else {
-        messageWrapper.classList.add("justify-start");
-    }
+            // Adjust alignment: user messages (right) and bot messages (left)
+            if (isUser) {
+                messageWrapper.classList.add("justify-end");
+            } else {
+                messageWrapper.classList.add("justify-start");
+            }
 
-    const message = document.createElement(isCode ? "pre" : "div");
-    message.classList.add("p-2", "rounded-md", "max-w-xs", "text-sm", "w-fit");
+            const message = document.createElement(isCode ? "pre" : "div");
+            message.classList.add("p-2", "rounded-md", "max-w-xs", "text-sm", "w-fit");
 
-    // Different styles for user, error, or bot messages
-    message.classList.add(isUser ? "bg-blue-600" : isError ? "bg-red-600" : "bg-gray-200");
-    message.classList.add(isUser || isError ? "text-white" : "text-gray-700");
+            // Different styles for user, error, or bot messages
+            message.classList.add(isUser ? "bg-blue-600" : isError ? "bg-red-600" : "bg-gray-200");
+            message.classList.add(isUser || isError ? "text-white" : "text-gray-700");
 
-    if (isCode) {
-        const codeBlock = document.createElement("code");
-        codeBlock.classList.add("hljs");
-        codeBlock.textContent = content.replace(/```/g, '');
-        message.appendChild(codeBlock);
-        hljs.highlightElement(codeBlock);
-    } else {
-        message.textContent = content;
-    }
+            if (isCode) {
+                const codeBlock = document.createElement("code");
+                codeBlock.classList.add("hljs");
+                codeBlock.textContent = content.replace(/```/g, '');
+                message.appendChild(codeBlock);
+                hljs.highlightElement(codeBlock);
+            } else {
+                message.textContent = content;
+            }
 
-    messageWrapper.appendChild(message);
-    return messageWrapper;
-}
+            messageWrapper.appendChild(message);
+            return messageWrapper;
+        }
 
 
         // Handle form submission with AJAX

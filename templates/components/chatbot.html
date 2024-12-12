@@ -6,7 +6,7 @@
 
 <!-- Chat Icon Button -->
 <div id="chatIcon" class="fixed bottom-4 right-5 bg-blue-600 text-white p-4 rounded-full shadow-lg cursor-pointer" aria-label="Open Chat">
-    💬
+    {% heroicon_outline "chat-bubble-left-right" %}
 </div>
 
 <!-- Chatbox Container (Initially hidden) -->
@@ -32,9 +32,7 @@
             {% csrf_token %}
             <input type="text" id="prompt" name="prompt" class="flex-1 p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200 placeholder-gray-400" placeholder="Type your message..." aria-label="Type your message">
             <button type="button" id="voiceInput" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v4a1 1 0 102 0V7zm-1 8a3 3 0 01-3-3h2a1 1 0 002 0h2a3 3 0 01-3 3z" clip-rule="evenodd" />
-                </svg>
+                {% heroicon_outline "microphone" %}
             </button>
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Send</button>
         </form>

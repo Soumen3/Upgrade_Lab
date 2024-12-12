@@ -9,13 +9,14 @@
             <!-- Left Section: Profile Image, Name, Email, and Details -->
             <div class="flex flex-col  md:mr-8 md:w-1/3"> <!-- Adjusted width for smaller column -->
                 <!-- Profile Picture -->
-                <div class="w-48 h-48 rounded-full overflow-hidden border-4 border-gradient-to-r from-purple-500 to-purple-700 transform transition-transform duration-300 hover:scale-105">
+                <div class="w-48 h-48 rounded-full overflow-hidden border-4 border-gradient-to-r from-purple-500 to-purple-700 transform transition-transform duration-300 hover:scale-105 self-center">
                     <img class="w-full h-full object-cover" src="{% if user_detail.profile_pic %}{{ user_detail.profile_pic.url }}{% else %}{% static 'Lab/media/default-profile.jpg' %}{% endif %}" alt="User Avatar">
                 </div>
                 
                 <!-- Name, Email, and Date Joined -->
                 <div class="mt-4">
                     <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">{{ user_profile.first_name }} {{ user_profile.last_name }}</h2>
+                    <p class="text-base text-gray-600 dark:text-gray-400">{{ user_detail.bio }}</p>
                     <p class="text-base text-gray-600 dark:text-gray-400">{{ user_profile.email }}</p>
                     <p class="text-gray-700 dark:text-gray-300 text-base">
                         <strong class="font-medium">Joined:</strong> {{ user_profile.date_joined }}

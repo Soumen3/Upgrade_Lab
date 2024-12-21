@@ -82,9 +82,11 @@ def handle_run_action(code, input_data, output_data, language):
         function_name = config("LAMBDA_COMPILER_FUNCTION")
     elif language == 'javascript':
         function_name = config("LAMBDA_COMPILER_FUNCTION_JS")
+    print(function_name)
     result = invoke_lambda_function(function_name, code, input_data, output_data)
 
     context = {}
+    print(result)
 
     if result['statusCode'] == 200:
         results = json.loads((result['body']))['results']

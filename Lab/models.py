@@ -28,3 +28,16 @@ class UserDetail(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+
+
+class socialMedia(models.Model):
+    user=models.ForeignKey(UserDetail, on_delete=models.CASCADE)
+    github_username=models.CharField(max_length=100, blank=True)
+    linkedin_username=models.CharField(max_length=100, blank=True)
+    twitter_username=models.CharField(max_length=100, blank=True)
+    facebook_username=models.CharField(max_length=100, blank=True)
+    instagram_username=models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return self.user.user.username

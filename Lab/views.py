@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Q
 from .forms import UserDetailForm
-from .models import UserDetail
+from .models import UserDetail, socialMedia
 from vcs.models import Repository
 from coding.models import UserProfile
 
@@ -26,6 +26,21 @@ def user_profile(request, id, username):
         user_profile_details = UserProfile.objects.get(user=request.user)
         solved_problems = user_profile_details.solved_problems.all()
         context['solved_problems'] = solved_problems
+        social_media=socialMedia.objects.filter(user=user_detail).first()
+        context['social_media']=social_media
+        print("social media:",social_media)
+        if social_media:
+            all_filled = all([
+                social_media.github_username,
+                social_media.linkedin_username,
+                social_media.twitter_username,
+                social_media.facebook_username,
+                social_media.instagram_username
+            ])
+            context['all_social_media_filled'] = all_filled
+        else:
+            context['all_social_media_filled'] = False
+
     except UserDetail.DoesNotExist:
         user_detail = None
     context['user_detail'] = user_detail

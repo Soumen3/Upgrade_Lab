@@ -3,10 +3,11 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-# class institue(models.Model):
-#     name = models.CharField(max_length=1000)
-#     location = models.CharField(max_length=1000)
-#     phone = models.IntegerField(null=True, blank=True)
+class institue(models.Model):
+    name = models.CharField(max_length=1000)
+    location = models.CharField(max_length=1000)
+    phone = models.IntegerField(null=True, blank=True)
+
 class UserDetail(models.Model):
     TEACHER = 'teacher'
     STUDENT = 'student'

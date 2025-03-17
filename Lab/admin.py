@@ -1,12 +1,12 @@
 from django.contrib import admin
-from .models import UserDetail, socialMedia
+from .models import UserDetail, socialMedia, institue
 # Register your models here.
 
 
-# @admin.register(institue)
-# class institueAdmin(admin.ModelAdmin):
-#     list_display = ['name', 'location', 'phone']
-#     search_fields = ['name', 'location']
+@admin.register(institue)
+class institueAdmin(admin.ModelAdmin):
+    list_display = ['name', 'location', 'phone']
+    search_fields = ['name', 'location']
 
 @admin.register(UserDetail)
 class UserDetailAdmin(admin.ModelAdmin):

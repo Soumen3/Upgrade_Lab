@@ -51,7 +51,7 @@
                         {% endif %}
                         {% if social_media.facebook_username %}
                         <a href="https://www.facebook.com/{{ social_media.facebook_username }}" target="_blank" class="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                            <span class="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-purple-400 border border-purple-400 flex flex-nowrap items-center gap-1 whitespace-nowrap"><i class="fab fa-linkedin fa-x"></i> {{ social_media.facebook_username}}</span>
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-purple-400 border border-purple-400 flex flex-nowrap items-center gap-1 whitespace-nowrap"><i class="fab fa-facebook fa-x"></i> {{ social_media.facebook_username}}</span>
                         </a>
                         {% endif %}
                         {% if social_media.instagram_username %}
@@ -61,9 +61,9 @@
                         {% endif %}
                     </div>
                     {% endif %}
-                    {% if not all_social_media_filled %}
-                    <button type="button" class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 w-max">Social Media +</button>
-                    {% endif %}
+                    <button type="button" class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 my-2 " style="width:max-content">
+                        {% if all_social_media_filled %}Edit Social Media{% else %}Social Media +{% endif %}
+                    </button>
                 </div>
             </div>
 
@@ -104,4 +104,102 @@
        
     </div>
 </div>
+
+<!-- Social Media Modal -->
+<div id="socialMediaModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex justify-center items-center">
+    <div class="bg-white dark:bg-gray-700 rounded-lg shadow-xl p-6 w-full max-w-md">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Update Social Media</h3>
+            <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <form action="{% url 'update_social_media' user_profile.id user_profile.username %}" method="post">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <i class="fab fa-github mr-2"></i>GitHub Username
+                </label>
+                <input type="text" name="github_username" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                    value="{{ social_media.github_username|default:'' }}">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <i class="fab fa-linkedin mr-2"></i>LinkedIn Username
+                </label>
+                <input type="text" name="linkedin_username" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                    value="{{ social_media.linkedin_username|default:'' }}">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <i class="fab fa-twitter mr-2"></i>Twitter Username
+                </label>
+                <input type="text" name="twitter_username" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                    value="{{ social_media.twitter_username|default:'' }}">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <i class="fab fa-facebook mr-2"></i>Facebook Username
+                </label>
+                <input type="text" name="facebook_username" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                    value="{{ social_media.facebook_username|default:'' }}">
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <i class="fab fa-instagram mr-2"></i>Instagram Username
+                </label>
+                <input type="text" name="instagram_username" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
+                    value="{{ social_media.instagram_username|default:'' }}">
+            </div>
+            
+            <div class="flex justify-end gap-3">
+                <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-md hover:from-blue-600 hover:to-blue-800">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Get the modal
+    const modal = document.getElementById('socialMediaModal');
+    
+    // Get the button that opens the modal
+    const btn = document.querySelector('button.bg-gradient-to-r.from-blue-500');
+    
+    // Get the elements that close the modal
+    const closeBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    
+    // When the user clicks the button, open the modal
+    if (btn) {
+        btn.onclick = function() {
+            modal.classList.remove('hidden');
+        }
+    }
+    
+    // When the user clicks close/cancel button, close the modal
+    closeBtn.onclick = function() {
+        modal.classList.add('hidden');
+    }
+    
+    cancelBtn.onclick = function() {
+        modal.classList.add('hidden');
+    }
+    
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.classList.add('hidden');
+        }
+    }
+</script>
 {% endblock body %}

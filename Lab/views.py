@@ -76,6 +76,34 @@ def add_user_detail(request, id, username):
 
     return render(request, 'Lab/add_user_detail.html', {'form': form})
 
+@login_required
+def update_social_media(request, id, username):
+    user = get_object_or_404(User, id=id, username=username)
+    
+    # Ensure the logged-in user is only updating their own profile
+    if request.user != user:
+        messages.error(request, 'You can only update your own social media information.')
+        return redirect('home')
+    
+    if request.method == 'POST':
+        user_detail = get_object_or_404(UserDetail, user=user)
+        
+        # Get or create social media object
+        social_media, created = socialMedia.objects.get_or_create(user=user_detail)
+        
+        # Update fields
+        social_media.github_username = request.POST.get('github_username', '')
+        social_media.linkedin_username = request.POST.get('linkedin_username', '')
+        social_media.twitter_username = request.POST.get('twitter_username', '')
+        social_media.facebook_username = request.POST.get('facebook_username', '')
+        social_media.instagram_username = request.POST.get('instagram_username', '')
+        
+        social_media.save()
+        
+        messages.success(request, 'Social media information updated successfully.')
+        
+    return redirect('user_profile', id=id, username=username)
+
 def chatbot(request):
     response = "Something went wrong. Please try again."
     if request.method == 'POST':
@@ -83,9 +111,6 @@ def chatbot(request):
         response = ask_chatbot(prompt, max_tokens=1024)
         return JsonResponse({'response': response})
     return render(request, 'Lab/home.html', {'response': response})
-
-
-
 
 def search(request):
     query = request.GET.get('query')
@@ -102,7 +127,6 @@ def search(request):
         )
         users = users.distinct()
         
-
     context = {
         'repositories': repositories,
         'users': users,

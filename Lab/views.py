@@ -9,41 +9,33 @@ from .forms import UserDetailForm
 from .models import UserDetail, socialMedia
 from vcs.models import Repository
 from coding.models import UserProfile
+from .utils import get_user_all_detail_filled, get_social_media_filled
 
 # Create your views here.
 def home(request):
 	return render(request, 'Lab/home.html')
 
-# @login_required
+@login_required
 def user_profile(request, id, username):
     context = {}
     user = get_object_or_404(User, id=id, username=username)
     context['user_profile'] = user
     try:
-        user_detail = UserDetail.objects.get(user=user)
+        # Fix: Unpack the tuple returned by get_or_create
+        user_detail, created = UserDetail.objects.get_or_create(user=user)
         repositories = Repository.objects.filter(owner=request.user)
         context['repositories']=repositories
         user_profile_details = UserProfile.objects.get(user=request.user)
         solved_problems = user_profile_details.solved_problems.all()
         context['solved_problems'] = solved_problems
-        social_media=socialMedia.objects.filter(user=user_detail).first()
+        social_media, social_created=socialMedia.objects.get_or_create(user=user_detail)
         context['social_media']=social_media
-        print("social media:",social_media)
-        if social_media:
-            all_filled = all([
-                social_media.github_username,
-                social_media.linkedin_username,
-                social_media.twitter_username,
-                social_media.facebook_username,
-                social_media.instagram_username
-            ])
-            context['all_social_media_filled'] = all_filled
-        else:
-            context['all_social_media_filled'] = False
 
     except UserDetail.DoesNotExist:
         user_detail = None
     context['user_detail'] = user_detail
+    context.update(get_user_all_detail_filled(user))
+    context.update(get_social_media_filled(user))
     if user:
         return render(request, 'Lab/user_profile.html', context)
     else:
@@ -53,8 +45,13 @@ def user_profile(request, id, username):
 @login_required
 def add_user_detail(request, id, username):
     # Check if the user already has a UserDetail
-    user_detail = UserDetail.objects.filter(user=request.user).first()
-
+    if request.user.id != id:
+        messages.error(request, 'You can only update your own profile')
+        return redirect('home')
+    
+    # Get or create UserDetail
+    user_detail, created = UserDetail.objects.get_or_create(user=request.user)
+    
     if request.method == 'POST':
         form = UserDetailForm(request.POST, request.FILES, instance=user_detail)
         if form.is_valid():
@@ -65,28 +62,22 @@ def add_user_detail(request, id, username):
             return redirect('user_profile', id=request.user.id, username=request.user.username)
         else:
             messages.error(request, 'Profile update failed')
-
-    else:
-        # If no UserDetail exists for the user, create an empty form
-        if not user_detail:
-            form = UserDetailForm()
-        else:
-            # If a UserDetail exists, pass the existing object to the form
-            form = UserDetailForm(instance=user_detail)
-
-    return render(request, 'Lab/add_user_detail.html', {'form': form})
+    
+    return redirect('user_profile', id=id, username=username)
 
 @login_required
 def update_social_media(request, id, username):
-    user = get_object_or_404(User, id=id, username=username)
-    
+    user, created= User.objects.get_or_create(id=id, username=username)
+
+    print("hello")
     # Ensure the logged-in user is only updating their own profile
     if request.user != user:
         messages.error(request, 'You can only update your own social media information.')
         return redirect('home')
     
     if request.method == 'POST':
-        user_detail = get_object_or_404(UserDetail, user=user)
+        # Fix: Unpack the tuple returned by get_or_create
+        user_detail, detail_created = UserDetail.objects.get_or_create(user=user)
         
         # Get or create social media object
         social_media, created = socialMedia.objects.get_or_create(user=user_detail)

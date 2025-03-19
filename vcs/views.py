@@ -8,7 +8,11 @@ from pathlib import Path
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+import io
+from icecream import ic
 
+
+# ic.disable()
 
 @login_required
 def repository_list(request):
@@ -35,7 +39,7 @@ def build_file_structure(files):
                 current_level[part] = {}
             current_level = current_level[part]
         current_level[parts[-1]] = file
-    print(file_structure)
+    ic(file_structure)
     return file_structure
 
 @login_required
@@ -79,3 +83,24 @@ def upload_repository(request):
 def file_detail(request, repository_id, file_id):
     file = get_object_or_404(RepositoryFile, repository_id=repository_id, id=file_id)
     return HttpResponse(file.file.read(), content_type='text/plain')
+
+@login_required
+def download_repository(request, pk):
+    ic("download_repository")
+    repository = get_object_or_404(Repository, pk=pk)
+    files = RepositoryFile.objects.filter(repository=repository)
+    
+    # Create a zip file in memory
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        for file_obj in files:
+            # Get file content
+            file_content = file_obj.file.read()
+            # Add file to zip with its path
+            zip_file.writestr(file_obj.path, file_content)
+    
+    # Prepare response with zip file
+    response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+    response['Content-Disposition'] = f'attachment; filename="{repository.name}.zip"'
+    
+    return response

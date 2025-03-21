@@ -8,7 +8,7 @@ urlpatterns = [
     path('repositories/<int:pk>/', views.repository_detail, name='repository_detail'),
     path('repositories/<int:repository_id>/files/<int:file_id>/', views.file_detail, name='file_detail'),
     path('repositories/<int:pk>/download/', views.download_repository, name='download_repository'),
-    path('upload/', views.upload_repository, name='upload_repository'),
+    path('repository/upload/', views.upload_repository, name='upload_repository'),
 ]
 
 if settings.DEBUG:

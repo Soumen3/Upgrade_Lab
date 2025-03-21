@@ -6,7 +6,14 @@
     <div class="max-w-full sm:max-w-md md:max-w-lg lg:max-w-3xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
         <p class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 text-center sm:text-left">Upload Repository</p>
         
-        <form method="post" enctype="multipart/form-data">
+        <!-- Loading indicator (initially hidden) -->
+        <div id="loading-indicator" class="w-full hidden mb-4 text-center">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700 dark:border-purple-500 mb-2"></div>
+            <p class="text-sm text-gray-700 dark:text-gray-300">Uploading repository...</p>
+            <p class="text-xs text-gray-500 dark:text-gray-500">This may take few minutes</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" id="upload-form">
             {% csrf_token %}
             
             <!-- Form fields -->
@@ -25,10 +32,62 @@
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="w-60 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm py-3 mt-6 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
+            <button type="submit" id="upload-button" class="w-60 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm py-3 mt-6 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">
                 Upload
             </button>
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('upload-form');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const uploadButton = document.getElementById('upload-button');
+    
+    form.addEventListener('submit', function(e) {
+        // Prevent the default form submission
+        e.preventDefault();
+        
+        // Collect form data
+        const formData = new FormData(form);
+        
+        // Create and configure XHR request
+        const xhr = new XMLHttpRequest();
+        
+        // Show loading indicator
+        loadingIndicator.classList.remove('hidden');
+        
+        // Disable upload button during upload
+        uploadButton.disabled = true;
+        uploadButton.classList.add('opacity-50');
+        
+        // Handle completion
+        xhr.addEventListener('load', function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                // Successful upload, redirect to the response URL
+                window.location.href = xhr.responseURL || '{% url "repository_list" %}';
+            } else {
+                // Error handling
+                loadingIndicator.classList.add('hidden');
+                uploadButton.disabled = false;
+                uploadButton.classList.remove('opacity-50');
+                alert('Upload failed. Please try again.');
+            }
+        });
+        
+        // Handle errors
+        xhr.addEventListener('error', function() {
+            loadingIndicator.classList.add('hidden');
+            uploadButton.disabled = false;
+            uploadButton.classList.remove('opacity-50');
+            alert('Upload failed. Please try again.');
+        });
+        
+        // Open and send the request
+        xhr.open('POST', form.action || window.location.href, true);
+        xhr.send(formData);
+    });
+});
+</script>
 {% endblock body %}

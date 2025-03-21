@@ -23,6 +23,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-ruby.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-php.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-json.min.js"></script>
     <style>
         /* Override Prism.js background color */
         pre[class*="language-"] {
@@ -148,6 +149,7 @@
         // Mapping of file extensions to Prism.js language identifiers
         const extensionToLanguageMap = {
             'js': 'javascript',
+            'mjs': 'javascript',
             'py': 'python',
             'html': 'markup',
             'css': 'css',
@@ -157,6 +159,7 @@
             'rb': 'ruby',
             'php': 'php',
             'ts': 'typescript',
+            'json': 'json',
             // Add more mappings as needed
         };
 
@@ -188,7 +191,9 @@
                     .then(data => {
                         if (language === 'plaintext') {
                             document.getElementById('file-content').innerHTML = `
-                                <pre class="line-numbers"><code>${data}</code></pre>`;
+                                <pre class="line-numbers max-h-full overflow-scroll bg-gray-300 dark:bg-gray-700"
+                                    style="min-height: 100%"
+                                ><code>${data}</code></pre>`;
                         } else {
                             document.getElementById('file-content').innerHTML = `
                                 <pre class="line-numbers"><code class="language-${language}">${Prism.highlight(data, Prism.languages[language], language)}</code></pre>`;

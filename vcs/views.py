@@ -12,7 +12,7 @@ import io
 from icecream import ic
 
 
-# ic.disable()
+ic.disable()
 
 @login_required
 def repository_list(request):
@@ -104,3 +104,23 @@ def download_repository(request, pk):
     response['Content-Disposition'] = f'attachment; filename="{repository.name}.zip"'
     
     return response
+
+@login_required
+def delete_repository(request, pk):
+    repository = get_object_or_404(Repository, pk=pk)
+    if request.user != repository.owner:
+        return HttpResponse("You are not allowed to delete this repository", status=403)
+    
+    # Get all files associated with the repository
+    files = RepositoryFile.objects.filter(repository=repository)
+    
+    # Delete all files from AWS/S3 storage
+    for file_obj in files:
+        # This will delete the file from the storage backend (AWS S3)
+        if file_obj.file:
+            file_obj.file.delete(save=False)
+    
+    # Delete the repository (and its related objects through CASCADE)
+    repository.delete()
+    
+    return redirect('repository_list')

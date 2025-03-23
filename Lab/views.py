@@ -25,7 +25,7 @@ def user_profile(request, id, username):
         user_detail, created = UserDetail.objects.get_or_create(user=user)
         repositories = Repository.objects.filter(owner=user)
         context['repositories']=repositories
-        user_profile_details = UserProfile.objects.get(user=user)
+        user_profile_details, created_profile = UserProfile.objects.get_or_create(user=user)
         solved_problems = user_profile_details.solved_problems.all()
         context['solved_problems'] = solved_problems
         social_media, social_created=socialMedia.objects.get_or_create(user=user_detail)

@@ -6,11 +6,19 @@
     <div class="max-w-full sm:max-w-md md:max-w-lg lg:max-w-3xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
         <p class="text-2xl font-semibold text-gray-900 dark:text-white mb-6 text-center sm:text-left">Upload Repository</p>
         
+        <!-- Information about ignored files -->
+        <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900 rounded-md">
+            <p class="text-sm text-blue-800 dark:text-blue-200">
+                <span class="font-medium">Note:</span> Files listed in .gitignore will be automatically excluded. 
+                Common folders like <span class="font-mono">node_modules</span> and <span class="font-mono">.git</span> are always excluded.
+            </p>
+        </div>
+        
         <!-- Loading indicator (initially hidden) -->
         <div id="loading-indicator" class="w-full hidden mb-4 text-center">
             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700 dark:border-purple-500 mb-2"></div>
             <p class="text-sm text-gray-700 dark:text-gray-300">Uploading repository...</p>
-            <p class="text-xs text-gray-500 dark:text-gray-500">This may take few minutes</p>
+            <p class="text-xs text-gray-500 dark:text-gray-500">Please wait all the files are uploading.</p>
         </div>
         
         <form method="post" enctype="multipart/form-data" id="upload-form">

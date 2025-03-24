@@ -10,6 +10,8 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 import io
 from icecream import ic
+from .utils import parse_gitignore, should_ignore_file
+from django.contrib import messages
 
 
 ic.disable()
@@ -57,8 +59,33 @@ def upload_repository(request):
 
             # Extract the zip file and save the files to S3
             with zipfile.ZipFile(file, 'r') as zip_ref:
+                # Check if .gitignore exists in the zip file
+                ignore_patterns = []
+                gitignore_content = None
+                try:
+                    for filename in zip_ref.namelist():
+                        if filename.endswith('.gitignore'):
+                            gitignore_content = zip_ref.read(filename)
+                            break
+                except Exception as e:
+                    # If there's any issue finding .gitignore, continue without it
+                    pass
+                
+                # Parse gitignore patterns (this will include common patterns even if no .gitignore exists)
+                ignore_patterns = parse_gitignore(gitignore_content)
+                
+                # Track processed and ignored files for potential reporting
+                processed_files = 0
+                ignored_files = 0
+                
+                # Process files, respecting gitignore patterns
                 for zip_info in zip_ref.infolist():
                     if not zip_info.is_dir():
+                        # Skip files that match gitignore patterns
+                        if should_ignore_file(zip_info.filename, ignore_patterns):
+                            ignored_files += 1
+                            continue
+                            
                         # Extract the file content
                         extracted_file = zip_ref.read(zip_info)
                         s3_file = ContentFile(extracted_file)
@@ -70,13 +97,18 @@ def upload_repository(request):
                             file=s3_file,
                             path=zip_info.filename
                         )
+                        processed_files += 1
+                
+                success_message = f'Repository uploaded successfully. {processed_files} files processed'
+                if ignored_files > 0:
+                    success_message += f', {ignored_files} files ignored.'
+                messages.success(request, success_message)
 
             return redirect('repository_list')
     else:
         form = RepositoryUploadForm()
 
     return render(request, 'vcs/upload_repository.html', {'form': form})
-
 
 
 @login_required
@@ -122,5 +154,6 @@ def delete_repository(request, pk):
     
     # Delete the repository (and its related objects through CASCADE)
     repository.delete()
+    messages.success(request, 'Repository deleted successfully.')
     
     return redirect('repository_list')

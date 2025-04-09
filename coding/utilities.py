@@ -116,10 +116,12 @@ def handle_submit_action(user, problem, code, language):
 
     if language == 'python3':
         function_name = config("LAMBDA_COMPILER_FUNCTION")
+        result = invoke_lambda_function(function_name, code, input_data, output_data)
     elif language == 'javascript':
         function_name = config("LAMBDA_COMPILER_FUNCTION_JS")
-        
-    result = invoke_lambda_function(function_name, code, input_data, output_data)
+        result = invoke_lambda_function(function_name, code, input_data, output_data)
+    elif language == 'c':
+        result = run_C_code(code, input_data, output_data)
 
     if result['statusCode'] != 200:
         return {

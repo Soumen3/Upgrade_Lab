@@ -6,8 +6,9 @@ from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from icecream import ic
 
-
+# ic.disable()
 
 # Create your views here.
 def problem_list_view(request):
@@ -49,19 +50,18 @@ def problem_detail_view(request, pk):
         output_data = problem.sample_output
 
         context['code'] = code
-        print(language)
         context['selected_language'] = language  # Pass the selected language to the context
 
         if action == 'run':
             try:
                 run_context = handle_run_action(code, input_data, output_data, language)
                 context.update(run_context)
-                print("context: ", context)
+                ic(context)
                 if context.get('error'):
                     messages.error(request, context['error'])
             except Exception as e:
-                messages.error(request, "Something error occured!")
-                print("Error: ", e)
+                messages.error(request, "Something error occured! Contact admin!")
+                ic("Error: ", e)
 
         elif action == 'submit':
             try:
@@ -115,6 +115,10 @@ def post_problems(request):
                 code_snippet = generate_code_snippet(problem_form.cleaned_data['sample_input'], language='javascript')
                 CodeSnippet.objects.create(problem=problem, language=code_snippet[1], code=code_snippet[0])
 
+                # generate code snippet for c
+                code_snippet = generate_code_snippet(problem_form.cleaned_data['sample_input'], language='c')
+                CodeSnippet.objects.create(problem=problem, language=code_snippet[1], code=code_snippet[0])
+
                 messages.success(request, 'Problem posted successfully!')
                 return redirect('post_problem')
             else:
@@ -122,7 +126,7 @@ def post_problems(request):
                 messages.error(request, 'You do not have permission to post problems.')
         else:
             print("Form is invalid")
-            messages.error(request, 'Error postin the problem! Invalid form data.')
+            messages.error(request, 'Error posting the problem! Invalid form data.')
 
     else:
         problem_form = ProblemForm()

@@ -33,6 +33,7 @@ class CodeSnippet(models.Model):
     JAVASCRIPT = 'javascript'
     JAVA = 'java'
     CPP = 'cpp'
+    C='c'
     CSHARP = 'csharp'
 
     LANGUAGE_CHOICES = [
@@ -40,6 +41,7 @@ class CodeSnippet(models.Model):
         (JAVASCRIPT, 'JavaScript'),
         (JAVA, 'Java'),
         (CPP, 'C++'),
+        (C, 'C'),
         (CSHARP, 'C#'),
     ]
 

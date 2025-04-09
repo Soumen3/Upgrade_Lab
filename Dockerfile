@@ -1,11 +1,11 @@
-# Use the official Debian base image from Docker Hub
-FROM debian:latest
+# Use a lightweight Linux image with gcc
+FROM gcc
 
-# Install GCC and G++ compilers
-RUN apt-get update && apt-get install -y gcc g++ && rm -rf /var/lib/apt/lists/*
-
-# Set the working directory inside the container
+# Set workdir
 WORKDIR /app
 
-# Default command to run when the container starts
+# Copy C file into container (we'll override this with volume)
+COPY . /app
+
+# Default command (can be overridden at runtime)
 CMD ["/bin/bash"]

@@ -3,10 +3,12 @@ from .models import UserProfile
 import json
 from decouple import config
 from django.utils import timezone
-from .compile import invoke_lambda_function
+from .compile import invoke_lambda_function, run_C_code
 from .models import Submission, TestCase
 from django.shortcuts import get_object_or_404
+from icecream import ic
 
+# ic.disable()
 
 # Generate code snippets for the user post problem:
 
@@ -39,7 +41,6 @@ def generate_code_snippet(inputs, language="python3"):
     else:
         pass  # Add support for other languages here
     return (code, language)
-
 
 
 
@@ -80,13 +81,15 @@ def create_or_update_user_profile(request, problem):
 def handle_run_action(code, input_data, output_data, language):
     if language == 'python3':
         function_name = config("LAMBDA_COMPILER_FUNCTION")
+        result = invoke_lambda_function(function_name, code, input_data, output_data)
     elif language == 'javascript':
         function_name = config("LAMBDA_COMPILER_FUNCTION_JS")
-    print(function_name)
-    result = invoke_lambda_function(function_name, code, input_data, output_data)
+        result = invoke_lambda_function(function_name, code, input_data, output_data)
+    elif language == 'c':
+        result = run_C_code(code, input_data, output_data)
 
     context = {}
-    print(result)
+    ic(result)
 
     if result['statusCode'] == 200:
         results = json.loads((result['body']))['results']

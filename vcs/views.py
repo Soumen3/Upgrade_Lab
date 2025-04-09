@@ -14,7 +14,7 @@ from .utils import parse_gitignore, should_ignore_file
 from django.contrib import messages
 
 
-ic.disable()
+# ic.disable()
 
 @login_required
 def repository_list(request):

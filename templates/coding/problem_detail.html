@@ -3,7 +3,7 @@
 
 {% block css %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css"> <!-- Dark theme -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/python/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
@@ -72,6 +72,7 @@
                             <option value="javascript" {% if selected_language == 'javascript' %}selected{% endif %}>JavaScript</option>
                             <option value="java" {% if selected_language == 'java' %}selected{% endif %}>Java</option>
                             <option value="cpp" {% if selected_language == 'cpp' %}selected{% endif %}>C++</option>
+                            <option value="c" {% if selected_language == 'c' %}selected{% endif %}>C</option>
                             <option value="csharp" {% if selected_language == 'csharp' %}selected{% endif %}>C#</option>
                         </select>
                         <!-- Run and Submit Buttons on the Left -->
@@ -132,7 +133,7 @@
                 const editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
                     lineNumbers: true,
                     mode: language === 'python3' ? 'python' : language,
-                    theme: 'monokai',
+                    theme: 'monokai', // Updated to dark theme
                     viewportMargin: Infinity, // Ensures the editor height adjusts to content
                     height: 'auto'
                 });
@@ -143,6 +144,9 @@
                     let mode = this.value;
                     if (mode === 'python3') mode = 'python';
                     else if (mode === 'cpp') mode = 'text/x-c++src';
+                    else if (mode === 'javascript') mode = 'text/javascript';
+                    else if (mode === 'java') mode = 'text/x-java';
+                    else if (mode === 'c') mode = 'text/x-csrc';
                     else if (mode === 'csharp') mode = 'text/x-csharp';
         
                     editor.setOption('mode', mode);

@@ -37,7 +37,16 @@ def generate_code_snippet(inputs, language="python3"):
         code = generate_python_code(inputs)
     elif language == "javascript":
         code = generate_javascript_code(inputs)
-        print(code)
+    elif language == "c":
+        code = """// Write the full code. Take inputs and print the output.
+// don't print anything else other than the output.
+#include<stdio.h>
+
+int  main(){
+  // write your code here
+
+  return 0;
+}"""
     else:
         pass  # Add support for other languages here
     return (code, language)

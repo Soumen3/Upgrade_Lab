@@ -12,7 +12,7 @@ from django.utils import timezone
 CODE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'user_codes')
 
 @csrf_exempt
-def run_C_code(code, input_data, output_data):
+def run_C_code(code, input_data, output_data, language):
     results = []
     total_execution_time = 0
     total_memory_used = 0  # Placeholder for memory usage (if applicable)
@@ -22,7 +22,8 @@ def run_C_code(code, input_data, output_data):
     for test_case, expected_output in zip(input_data, output_data):
         # Unique file name for isolation
         file_id = str(uuid.uuid4())
-        file_name = f"{file_id}.c"
+        file_extension = 'cpp' if language == 'cpp' else 'c'
+        file_name = f"{file_id}.{file_extension}"
         file_path = os.path.join(CODE_DIR, file_name)
 
         # Save the C code to a temporary file
@@ -42,12 +43,13 @@ def run_C_code(code, input_data, output_data):
         try:
             # Run Docker command
             start_time = timezone.now()
+            compiler = 'g++' if language == 'cpp' else 'gcc'
             cmd = [
                 'docker', 'run', '--rm',
                 '-v', f'{CODE_DIR}:/app',
                 'c-compiler',  # Docker image you created earlier
                 'bash', '-c',
-                f'gcc {file_name} -o {file_id} && timeout 5s ./{file_id} < {input_file_name}'
+                f'{compiler} {file_name} -o {file_id} && timeout 5s ./{file_id} < {input_file_name}'
             ]
 
             result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

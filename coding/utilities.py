@@ -31,14 +31,8 @@ function Solution({', '.join(inputs[0].keys())}) {{
 """
     return code
 
-def generate_code_snippet(inputs, language="python3"):
-    # Generate the code snippet based on the input data
-    if language == "python3":
-        code = generate_python_code(inputs)
-    elif language == "javascript":
-        code = generate_javascript_code(inputs)
-    elif language == "c":
-        code = """// Write the full code. Take inputs and print the output.
+def generate_c_code():
+    code = """// Write the full code. Take inputs and print the output.
 // don't print anything else other than the output.
 #include<stdio.h>
 
@@ -47,6 +41,31 @@ int  main(){
 
   return 0;
 }"""
+    return code
+
+def generate_cpp_code():
+    code = """// Write the full code. Take inputs and print the output.
+// don't print anything else other than the output.
+#include <iostream>
+using namespace std;
+
+int main() {
+  // write your code here
+
+  return 0;
+}"""
+    return code
+
+def generate_code_snippet(inputs, language="python3"):
+    # Generate the code snippet based on the input data
+    if language == "python3":
+        code = generate_python_code(inputs)
+    elif language == "javascript":
+        code = generate_javascript_code(inputs)
+    elif language == "c":
+        code = generate_c_code()
+    elif language == "cpp":
+        code = generate_cpp_code()
     else:
         pass  # Add support for other languages here
     return (code, language)
@@ -94,8 +113,8 @@ def handle_run_action(code, input_data, output_data, language):
     elif language == 'javascript':
         function_name = config("LAMBDA_COMPILER_FUNCTION_JS")
         result = invoke_lambda_function(function_name, code, input_data, output_data)
-    elif language == 'c':
-        result = run_C_code(code, input_data, output_data)
+    elif language == 'c' or language == 'cpp':
+        result = run_C_code(code, input_data, output_data, language)
 
     context = {}
     ic(result)
@@ -129,8 +148,8 @@ def handle_submit_action(user, problem, code, language):
     elif language == 'javascript':
         function_name = config("LAMBDA_COMPILER_FUNCTION_JS")
         result = invoke_lambda_function(function_name, code, input_data, output_data)
-    elif language == 'c':
-        result = run_C_code(code, input_data, output_data)
+    elif language == 'c' or language == 'cpp':
+        result = run_C_code(code, input_data, output_data, language)
 
     if result['statusCode'] != 200:
         return {

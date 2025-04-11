@@ -123,6 +123,10 @@ def post_problems(request):
                 code_snippet = generate_code_snippet(problem_form.cleaned_data['sample_input'], language='cpp')
                 CodeSnippet.objects.create(problem=problem, language=code_snippet[1], code=code_snippet[0])
 
+                # generate code snippet for java
+                code_snippet = generate_code_snippet(problem_form.cleaned_data['sample_input'], language='java')
+                CodeSnippet.objects.create(problem=problem, language=code_snippet[1], code=code_snippet[0])
+
                 messages.success(request, 'Problem posted successfully!')
                 return redirect('post_problem')
             else:

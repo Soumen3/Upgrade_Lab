@@ -7,12 +7,23 @@ import uuid
 import subprocess
 from django.http import JsonResponse
 from django.utils import timezone
+import re
+
+
+def extract_java_main_class_name(code):
+    """
+    Extracts the class name containing the main method from the Java code.
+    """
+    match = re.search(r'\bclass\s+(\w+).*?public\s+static\s+void\s+main', code, re.DOTALL)
+    if match:
+        return match.group(1)
+    return None
 
 
 CODE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'user_codes')
 
 @csrf_exempt
-def run_C_code(code, input_data, output_data, language):
+def run_C_Cpp_Java_code(code, input_data, output_data, language):
     results = []
     total_execution_time = 0
     total_memory_used = 0  # Placeholder for memory usage (if applicable)
@@ -22,8 +33,22 @@ def run_C_code(code, input_data, output_data, language):
     for test_case, expected_output in zip(input_data, output_data):
         # Unique file name for isolation
         file_id = str(uuid.uuid4())
-        file_extension = 'cpp' if language == 'cpp' else 'c'
-        file_name = f"{file_id}.{file_extension}"
+        if language == 'java':
+            main_class_name= extract_java_main_class_name(code)
+            if not main_class_name:
+                return {
+                    'statusCode': 400,
+                    'body': json.dumps({"error": "Invalid Java code: No main class found."})
+                }
+            unique_class_name = f"{main_class_name}_{file_id.replace('-', '_')}" # Unique class name
+            file_name = f"{unique_class_name}.java"
+            # Replace the main class name in the code with the unique class name
+            code = re.sub(rf'\bclass\s+{main_class_name}\b', f'class {unique_class_name}', code)
+
+        else:
+            file_extension = 'cpp' if language == 'cpp' else 'c'
+            file_name = f"{file_id}.{file_extension}"
+
         file_path = os.path.join(CODE_DIR, file_name)
 
         # Save the C code to a temporary file
@@ -43,20 +68,36 @@ def run_C_code(code, input_data, output_data, language):
         try:
             # Run Docker command
             start_time = timezone.now()
-            compiler = 'g++' if language == 'cpp' else 'gcc'
-            cmd = [
-                'docker', 'run', '--rm',
-                '-v', f'{CODE_DIR}:/app',
-                'c-compiler',  # Docker image you created earlier
-                'bash', '-c',
-                f'{compiler} {file_name} -o {file_id} && timeout 5s ./{file_id} < {input_file_name}'
-            ]
+            if language == 'java':
+                file_name = os.path.basename(file_path)
+                cmd = [
+                    'docker', 'run', '--rm',
+                    '-v', f'{CODE_DIR}:/app',
+                    'compiler',
+                    'bash', '-c',
+                    f'javac {file_name} && timeout 5s java -cp . {unique_class_name} < {input_file_name}'
+                ]
+            else:  
+                compiler = 'g++' if language == 'cpp' else 'gcc'
+                cmd = [
+                    'docker', 'run', '--rm',
+                    '-v', f'{CODE_DIR}:/app',
+                    'compiler',  # Docker image you created earlier
+                    'bash', '-c',
+                    f'{compiler} {file_name} -o {file_id} && timeout 5s ./{file_id} < {input_file_name}'
+                ]
 
             result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             end_time = timezone.now()
 
             output = result.stdout.strip()
             errors = result.stderr.strip()
+
+            # clean the java class file
+            if language == 'java':
+                class_file = os.path.join(CODE_DIR, f"{unique_class_name}.class")
+                if os.path.exists(class_file):
+                    os.remove(class_file)
 
             # Calculate execution time
             execution_time = (end_time - start_time).total_seconds()

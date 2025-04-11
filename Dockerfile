@@ -1,13 +1,20 @@
-# Use a lightweight Linux image with gcc
-FROM gcc
+FROM debian:bullseye
 
-# Set workdir
+# Install build tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    g++ \
+    openjdk-11-jdk \
+    ca-certificates \
+    && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
 WORKDIR /app
 
-# Copy C file into container (we'll override this with volume)
+# Copy source files
 COPY . /app
 
-RUN apt-get update && apt-get install -y g++
-
-# Default command (can be overridden at runtime)
+# Default command
 CMD ["/bin/bash"]

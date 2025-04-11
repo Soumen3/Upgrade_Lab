@@ -3,12 +3,12 @@ from .models import UserProfile
 import json
 from decouple import config
 from django.utils import timezone
-from .compile import invoke_lambda_function, run_C_code
+from .compile import invoke_lambda_function, run_C_Cpp_Java_code
 from .models import Submission, TestCase
 from django.shortcuts import get_object_or_404
 from icecream import ic
 
-# ic.disable()
+ic.disable()
 
 # Generate code snippets for the user post problem:
 
@@ -56,6 +56,18 @@ int main() {
 }"""
     return code
 
+def generate_java_code():
+    code = """// Write the full code. Take inputs and print the output.
+// don't print anything else other than the output.
+
+public class Solution {
+  public static void main(String[] args) {
+    // Write your code here
+        
+  }
+}"""
+    return code
+
 def generate_code_snippet(inputs, language="python3"):
     # Generate the code snippet based on the input data
     if language == "python3":
@@ -66,6 +78,8 @@ def generate_code_snippet(inputs, language="python3"):
         code = generate_c_code()
     elif language == "cpp":
         code = generate_cpp_code()
+    elif language == "java":
+        code = generate_java_code()
     else:
         pass  # Add support for other languages here
     return (code, language)
@@ -113,8 +127,12 @@ def handle_run_action(code, input_data, output_data, language):
     elif language == 'javascript':
         function_name = config("LAMBDA_COMPILER_FUNCTION_JS")
         result = invoke_lambda_function(function_name, code, input_data, output_data)
-    elif language == 'c' or language == 'cpp':
-        result = run_C_code(code, input_data, output_data, language)
+    elif language == 'c' or language == 'cpp' or language == 'java':
+        result = run_C_Cpp_Java_code(code, input_data, output_data, language)
+    else:
+        return {
+            'error': 'Unsupported language'
+        }
 
     context = {}
     ic(result)
@@ -148,8 +166,8 @@ def handle_submit_action(user, problem, code, language):
     elif language == 'javascript':
         function_name = config("LAMBDA_COMPILER_FUNCTION_JS")
         result = invoke_lambda_function(function_name, code, input_data, output_data)
-    elif language == 'c' or language == 'cpp':
-        result = run_C_code(code, input_data, output_data, language)
+    elif language == 'c' or language == 'cpp' or language == 'java':
+        result = run_C_Cpp_Java_code(code, input_data, output_data, language)
 
     if result['statusCode'] != 200:
         return {

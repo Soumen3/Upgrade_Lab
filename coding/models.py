@@ -52,6 +52,9 @@ class CodeSnippet(models.Model):
     def __str__(self):
         return f"Code Snippet for {self.problem.title} in {self.get_language_display()}"
 
+    class Meta:
+        unique_together = ('problem', 'language')  # Ensure one code snippet per language per problem
+
 class Submission(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)

@@ -1,143 +1,125 @@
 {% load static %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% static "components/css/chatbot.css" %}">
+<link rel="stylesheet" href="{% static "components/css/chatbot.css" %}">
 {% endblock css %}
 
-<!-- Chat Icon Button -->
+<!-- Chat Icon -->
 <div id="chatIcon" class="fixed bottom-4 right-5 bg-blue-600 text-white p-4 rounded-full shadow-lg cursor-pointer" aria-label="Open Chat">
     {% heroicon_outline "chat-bubble-left-right" %}
 </div>
 
-<!-- Chatbox Container (Initially hidden) -->
-
+<!-- Chatbox Container -->
 <div id="chatBox" class="fixed bottom-4 right-5 w-80 md:w-96 h-96 bg-white dark:bg-gray-800 dark:text-white shadow-lg rounded-lg border border-gray-300 dark:border-gray-600 flex flex-col hidden transition-all duration-300">
-    
+
     <!-- Header -->
-    <div class="bg-blue-700 p-4 text-white font-semibold flex justify-between items-center rounded-t-lg shadow">
-        <span>Chat Support</span>
-        <button id="closeChat" class="text-white text-lg focus:outline-none hover:bg-blue-600 p-1 rounded-full" aria-label="Close Chat">✕</button>
+    <div class="bg-blue-700 p-4 text-white font-semibold flex justify-between items-center rounded-t-lg">
+        <span>Virtual Assistant</span>
+        <button id="closeChat" class="text-white text-xl hover:bg-blue-600 p-1 rounded-full focus:outline-none" aria-label="Close Chat">✕</button>
     </div>
-    
+
     <!-- Messages Area -->
     <div id="messagesArea" class="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50 dark:bg-gray-700">
         <div class="bg-gray-300 dark:bg-gray-600 p-3 rounded-lg max-w-xs text-sm text-gray-800 dark:text-gray-200 shadow">
-            Hello! I'm Jarvis. How can I help you today?
-        </div>  
+            Hello! I’m Jarvis, your virtual assistant. How may I assist you today?
+        </div>
     </div>
-    
+
     <!-- Input Area -->
     <div class="p-3 border-t border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 rounded-b-lg">
         <form id="chatForm" class="flex items-center space-x-2" method="post" action="{% url 'chatbot' %}">
             {% csrf_token %}
-            <input type="text" id="prompt" name="prompt" class="flex-1 p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200 placeholder-gray-400" placeholder="Type your message..." aria-label="Type your message">
-            <button type="button" id="voiceInput" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+            <input type="text" id="prompt" name="prompt" class="flex-1 p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-600 dark:border-gray-500 dark:text-gray-200" placeholder="Ask me anything..." aria-label="Type your message">
+            <button type="button" id="voiceInput" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg shadow" aria-label="Voice Input">
                 {% heroicon_outline "microphone" %}
             </button>
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">Send</button>
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow" aria-label="Send Message">Send</button>
         </form>
     </div>
-
 </div>
 
-
 {% block js %}
-    <script src="{% static "components/js/voiceInput.js" %}"></script>
+<script src="{% static "components/js/voiceInput.js" %}"></script>
 {% endblock js %}
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        
-        const chatIcon = document.getElementById("chatIcon");
-        const chatBox = document.getElementById("chatBox");
-        const closeChat = document.getElementById("closeChat");
-        const chatForm = document.getElementById("chatForm");
-        const messagesArea = document.getElementById("messagesArea");
+document.addEventListener("DOMContentLoaded", function () {
+    const chatIcon = document.getElementById("chatIcon");
+    const chatBox = document.getElementById("chatBox");
+    const closeChat = document.getElementById("closeChat");
+    const chatForm = document.getElementById("chatForm");
+    const messagesArea = document.getElementById("messagesArea");
 
-        // Toggle chat box visibility
-        function toggleChatBox(show) {
-            chatBox.classList.toggle("hidden", !show);
-            chatIcon.classList.toggle("hidden", show);
+    // Show/Hide Chatbox
+    function toggleChatBox(show) {
+        chatBox.classList.toggle("hidden", !show);
+        chatIcon.classList.toggle("hidden", show);
+    }
+
+    chatIcon.addEventListener("click", () => toggleChatBox(true));
+    closeChat.addEventListener("click", () => toggleChatBox(false));
+
+    // Create a message bubble
+    function createMessageElement(content, isUser = false, isError = false, isCode = false) {
+        const wrapper = document.createElement("div");
+        wrapper.className = `flex mb-1 w-full ${isUser ? 'justify-end' : 'justify-start'}`;
+
+        const message = document.createElement(isCode ? "pre" : "div");
+        message.className = `p-2 rounded-md max-w-xs text-sm w-fit shadow 
+            ${isUser ? 'bg-blue-600 text-white' : isError ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200'}`;
+
+        if (isCode) {
+            const code = document.createElement("code");
+            code.classList.add("hljs");
+            code.textContent = content.replace(/```/g, '');
+            message.appendChild(code);
+            hljs.highlightElement(code);
+        } else {
+            message.textContent = content;
         }
 
-        chatIcon.addEventListener("click", () => toggleChatBox(true));
-        closeChat.addEventListener("click", () => toggleChatBox(false));
+        wrapper.appendChild(message);
+        return wrapper;
+    }
 
-        // Helper function to create a message element
-        // Helper function to create a message element
-        function createMessageElement(content, isUser = false, isError = false, isCode = false) {
-            const messageWrapper = document.createElement("div");
-            messageWrapper.classList.add("flex", "mb-1", "w-full");
+    // Form Submission
+    chatForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const formData = new FormData(chatForm);
+        const prompt = formData.get("prompt").trim();
 
-            // Adjust alignment: user messages (right) and bot messages (left)
-            if (isUser) {
-                messageWrapper.classList.add("justify-end");
+        if (!prompt) return;
+
+        messagesArea.appendChild(createMessageElement(prompt, true));
+        chatForm.reset();
+
+        const loading = createMessageElement("Thinking...");
+        messagesArea.appendChild(loading);
+
+        fetch("{% url 'chatbot' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            messagesArea.removeChild(loading);
+            const response = data.response.trim();
+            if (!response) {
+                messagesArea.appendChild(createMessageElement("Oops! Something went wrong. Please try again.", false, true));
             } else {
-                messageWrapper.classList.add("justify-start");
+                const isCode = response.includes("```");
+                messagesArea.appendChild(createMessageElement(response, false, false, isCode));
             }
-
-            const message = document.createElement(isCode ? "pre" : "div");
-            message.classList.add("p-2", "rounded-md", "max-w-xs", "text-sm", "w-fit");
-
-            // Different styles for user, error, or bot messages
-            message.classList.add(isUser ? "bg-blue-600" : isError ? "bg-red-600" : "bg-gray-200");
-            message.classList.add(isUser || isError ? "text-white" : "text-gray-700");
-
-            if (isCode) {
-                const codeBlock = document.createElement("code");
-                codeBlock.classList.add("hljs");
-                codeBlock.textContent = content.replace(/```/g, '');
-                message.appendChild(codeBlock);
-                hljs.highlightElement(codeBlock);
-            } else {
-                message.textContent = content;
-            }
-
-            messageWrapper.appendChild(message);
-            return messageWrapper;
-        }
-
-
-        // Handle form submission with AJAX
-        chatForm.addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            const formData = new FormData(chatForm);
-            const prompt = formData.get("prompt");
-
-            // Add user message to the chat
-            messagesArea.appendChild(createMessageElement(prompt, true));
-            chatForm.reset();
-
-            // Add loading message
-            const loadingMessage = createMessageElement("Loading...");
-            messagesArea.appendChild(loadingMessage);
-
-            fetch("{% url 'chatbot' %}", {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: new URLSearchParams(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Remove loading message
-                messagesArea.removeChild(loadingMessage);
-
-                if (!data.response.trim()) {
-                    messagesArea.appendChild(createMessageElement("An error occurred. Please try again.", false, true));
-                } else {
-                    const isCodeResponse = data.response.includes("```");
-                    messagesArea.appendChild(createMessageElement(data.response, false, false, isCodeResponse));
-                }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                messagesArea.removeChild(loadingMessage);
-                messagesArea.appendChild(createMessageElement("An error occurred. Please try again.", false, true));
-            });
+        })
+        .catch(err => {
+            console.error("Fetch Error:", err);
+            messagesArea.removeChild(loading);
+            messagesArea.appendChild(createMessageElement("Server error. Please try again later.", false, true));
         });
     });
+});
 </script>

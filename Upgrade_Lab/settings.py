@@ -158,9 +158,6 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-
-
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_ACCESS_KEY_ID = config('IAM_USER_ACCESS_KEY')
 AWS_SECRET_ACCESS_KEY = config('IAM_USER_SECRET_ACCESS_KEY')

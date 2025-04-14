@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from .models import Repository, RepositoryFile
+from .models import Repository, RepositoryFile, ProjectReport
 from .form import RepositoryUploadForm
 import zipfile
 from pathlib import Path
 from django.core.files.base import ContentFile
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 import io
 from icecream import ic
@@ -157,3 +157,17 @@ def delete_repository(request, pk):
     messages.success(request, 'Repository deleted successfully.')
     
     return redirect('repository_list')
+
+@login_required
+def upload_project_report(request, repository_id):
+    repository = get_object_or_404(Repository, id=repository_id, owner=request.user)
+    if request.method == 'POST' and request.FILES.get('report'):
+        report_file = request.FILES['report']
+        # Save or update the project report
+        project_report, created = ProjectReport.objects.update_or_create(
+            repository=repository,
+            defaults={'file': report_file}
+        )
+        messages.success(request, 'Project report uploaded successfully.')
+        return redirect('repository_detail', pk=repository_id)
+    return JsonResponse({'error': 'Invalid request'}, status=400)

@@ -10,6 +10,7 @@ urlpatterns = [
     path('repositories/<int:pk>/download/', views.download_repository, name='download_repository'),
     path('repositories/<int:pk>/delete/', views.delete_repository, name='delete_repository'),
     path('repository/upload/', views.upload_repository, name='upload_repository'),
+    path('repositories/<int:repository_id>/upload_report/', views.upload_project_report, name='upload_project_report'),
 ]
 
 if settings.DEBUG:

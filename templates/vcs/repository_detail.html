@@ -53,7 +53,6 @@
 <div class="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4">
     <!-- Repository Header -->
     <div class="border-b border-gray-300 dark:border-gray-700 pb-4 mb-6">
-       
         <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Left Column: Repository Name and Description -->
@@ -66,6 +65,12 @@
                 </h1>
                 
                 <p class="text-base md:text-lg text-gray-600 dark:text-gray-400 mt-2">{{ repository.description }}</p>
+                
+                {% if repository.project_report %}
+                    <p class="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                        <a href="{{ repository.project_report.file.url }}" target="_blank" class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">View Report</a>
+                    </p>
+                {% endif %}
             </div>
             
             <!-- Right Column: Owner and Creation Date -->
@@ -84,6 +89,10 @@
                         <i class="fas fa-trash"></i>
                     </button>
                     {% endif %}
+                    <button id="upload-report-button" 
+                        class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                        <i class="fas fa-upload"></i> Upload Report
+                    </button>
 
                     {% comment %} confirm Delete popover  {% endcomment %}
                     <div id="delete-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
@@ -154,16 +163,74 @@
             </div>
         </div>
     </div>
+
+    <!-- Upload Report Popover -->
+    <div id="upload-report-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50 transition-opacity"></div>
+            <div class="relative bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6 shadow-xl">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Upload Project Report</h3>
+                <form id="upload-report-form" action="{% url 'upload_project_report' repository.id %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <input type="file" name="report" accept="application/pdf" required
+                            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400">
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancel-upload-report" 
+                            class="px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+                            Cancel
+                        </button>
+                        <button type="submit" id="upload-report-submit" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center">
+                            <span id="upload-button-text">Upload</span>
+                            <svg id="upload-spinner" class="hidden w-5 h-5 ml-2 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const uploadReportButton = document.getElementById('upload-report-button');
+            const uploadReportModal = document.getElementById('upload-report-modal');
+            const cancelUploadReport = document.getElementById('cancel-upload-report');
+            const uploadReportForm = document.getElementById('upload-report-form');
+            const uploadSubmitButton = document.getElementById('upload-report-submit');
+            const uploadButtonText = document.getElementById('upload-button-text');
+            const uploadSpinner = document.getElementById('upload-spinner');
+
+            uploadReportButton.addEventListener('click', function () {
+                uploadReportModal.classList.remove('hidden');
+            });
+
+            cancelUploadReport.addEventListener('click', function () {
+                uploadReportModal.classList.add('hidden');
+            });
+
+            uploadReportForm.addEventListener('submit', function () {
+                // Disable the button and show the spinner
+                uploadSubmitButton.disabled = true;
+                uploadButtonText.textContent = 'Uploading';
+                uploadSpinner.classList.remove('hidden');
+            });
+        });
+    </script>
     
     <!-- Main Content -->
     <section class="Main_Content">
         <!-- Toggle Button (Visible only on small screens) -->
-        <button onclick="toggleFileSection()" class="mb-4 px-4 py-2 bg-gray-700 text-white rounded shadow flex items-center">
+        <button onclick="toggleFileSection()" class="md:hidden mb-4 px-4 py-2 bg-gray-700 text-white rounded shadow flex items-center">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 6h16M4 12h16M4 18h16" />
+            <path d="M4 6h16M4 12h16M4 18h16" />
             </svg>
+            <span class="ml-2">Toggle Files</span>
         </button>
-        
     
         <div class="flex flex-col md:flex-row gap-4">
             <!-- File Section (Left Side) -->

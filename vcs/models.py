@@ -29,3 +29,10 @@ class RepositoryFile(models.Model):
 
     def __str__(self):
         return self.path
+
+class ProjectReport(models.Model):
+    repository = models.OneToOneField(Repository, on_delete=models.CASCADE, related_name='project_report')
+    file = models.FileField(upload_to='project_reports/', max_length=1000)
+
+    def __str__(self):
+        return f"Report for {self.repository.name}"

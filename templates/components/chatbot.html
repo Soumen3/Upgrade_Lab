@@ -108,11 +108,14 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
             messagesArea.removeChild(loading);
             const response = data.response.trim();
+            console.log("Response:", response);
             if (!response) {
                 messagesArea.appendChild(createMessageElement("Oops! Something went wrong. Please try again.", false, true));
             } else {
-                const isCode = response.includes("```");
-                messagesArea.appendChild(createMessageElement(response, false, false, isCode));
+                const wrapper = document.createElement("div");
+                wrapper.className = "bg-gray-300 dark:bg-gray-600 p-3 rounded-lg max-w-xs text-sm text-gray-800 dark:text-gray-200 shadow text-justify overflow-auto"; 
+                wrapper.innerHTML = response; // Append the response as HTML
+                messagesArea.appendChild(wrapper);
             }
         })
         .catch(err => {

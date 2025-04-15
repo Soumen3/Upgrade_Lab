@@ -8,7 +8,7 @@ from .models import Submission, TestCase
 from django.shortcuts import get_object_or_404
 from icecream import ic
 
-ic.disable()
+# ic.disable()
 
 # Generate code snippets for the user post problem:
 

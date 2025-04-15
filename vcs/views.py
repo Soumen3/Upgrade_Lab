@@ -10,8 +10,11 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 import io
 from icecream import ic
-from .utils import parse_gitignore, should_ignore_file
+from .utils import parse_gitignore, should_ignore_file, analyse_code
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+import json
 
 
 # ic.disable()
@@ -171,3 +174,16 @@ def upload_project_report(request, repository_id):
         messages.success(request, 'Project report uploaded successfully.')
         return redirect('repository_detail', pk=repository_id)
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def analyze_code(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            code = data.get('code', '')
+            analysis_result = analyse_code(code)  # Use the updated function
+            return JsonResponse({'message': 'Code analyzed successfully.', 'analysis': analysis_result})
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+

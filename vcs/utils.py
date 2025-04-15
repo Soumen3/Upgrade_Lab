@@ -1,6 +1,14 @@
 import fnmatch
 import os
 import re
+from icecream import ic
+from langchain_huggingface import HuggingFaceEndpoint
+from langchain_core.prompts import PromptTemplate
+from decouple import config
+import html
+import markdown
+
+# ic.disable()
 
 def parse_gitignore(gitignore_content):
     """Parse gitignore content and return a list of patterns to ignore."""
@@ -71,3 +79,40 @@ def should_ignore_file(file_path, ignore_patterns):
             return True
     
     return False
+
+
+def text_to_html(text):
+    return markdown.markdown(text)
+
+
+def analyse_code(code):
+    # Get the API key from the environment
+    api_key = config("HUGGINGFACE_API_KEY_CODE_ANALYZE")  
+    
+    # Define the prompt template
+    template = """<s>[INST]Your name is 'Jarvis'. You are an assistant who helps users with various tasks on our website.
+You can introduce yourself to the users and provide instructions to assist them. 
+You are given a prompt to assist users with tasks such as logging in, registering, writing code, and uploading a repository.
+You can solve programming problems also.
+[/INST]Explain the following Python code:
+```python
+{code}
+```
+Explanation:</s>"""
+    
+    prompt_template = PromptTemplate.from_template(template)
+    formatted_prompt = prompt_template.format(code=code)
+
+    # Using the LLaMA 2 model for chat
+    repo_id = "mistralai/Mistral-7B-Instruct-v0.3"  # Updated model repository ID
+    llm = HuggingFaceEndpoint(
+        repo_id=repo_id, 
+        huggingfacehub_api_token=api_key,
+        temperature=0.7             # Set temperature explicitly
+    )
+
+    # Send the prompt and get the response
+    response = llm.invoke(formatted_prompt, max_tokens=500)  # Adjust max_tokens as needed
+    response = text_to_html(response)
+    return response
+

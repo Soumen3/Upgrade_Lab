@@ -250,9 +250,15 @@
                 </p>
             </div>
         </div>
+        <div class="min-w-full flex items-end justify-end mt-2">
+            <button id="code-analysis-button" 
+                class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-green-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                <i class="fas fa-brain"></i> Code Analysis
+            </button>
+
+        </div>
     </section>
       
-    
     <!-- Toggle Script -->
     <script>
         function toggleFileSection() {
@@ -260,6 +266,23 @@
             fileSection.classList.toggle('hidden');
         }
     </script>
+
+    <section id='code-analysis-result'>
+        <div class="analysis-result">
+            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 bg-gray-400 mb-4 text-center rounded-lg">Code Analysis Result</h2>
+            <div id="analysis-result-content" class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 h-[75vh] overflow-hidden">
+                <p class="text-center text-lg text-gray-700 dark:text-gray-400">
+                    No analysis result available.
+                </p>
+            </div>
+            <div id="analysis-loading" class="hidden flex justify-center items-center h-[75vh]">
+                <svg class="animate-spin h-10 w-10 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </div>
+    </section>
     
     
     
@@ -364,12 +387,62 @@
                         if (language === 'plaintext') {
                             document.getElementById('file-content').innerHTML = `
                                 <pre class="line-numbers max-h-full overflow-scroll bg-gray-300 dark:bg-gray-700"
-                                    style="min-height: 100%"
+                                    style="min-height: 90%"
                                 ><code>${data}</code></pre>`;
                         } else {
                             document.getElementById('file-content').innerHTML = `
                                 <pre class="line-numbers"><code class="language-${language}">${Prism.highlight(data, Prism.languages[language], language)}</code></pre>`;
                             Prism.highlightAll(); // Ensure Prism highlights the new content
+
+                            // Add event listener for the Code Analysis button
+                            const codeAnalysisButton = document.getElementById('code-analysis-button');
+                            codeAnalysisButton.addEventListener('click', function () {
+                                const codeElement = document.querySelector(`#file-content pre code`);
+                                if (!codeElement || codeElement.textContent.trim() === '' || 
+                                    document.getElementById('file-content').textContent.includes('Select a file')) {
+                                    alert('Please open a file before analyzing code.');
+                                    return;
+                                }
+                                
+                                const codeContent = codeElement.textContent;
+                                console.log('Extracted Code Content:', codeContent);
+
+                                // Show loading animation
+                                const analysisLoading = document.getElementById('analysis-loading');
+                                const analysisResultContent = document.getElementById('analysis-result-content');
+                                analysisLoading.classList.remove('hidden');
+                                analysisResultContent.classList.add('hidden');
+
+                                // Send the code content to the server
+                                fetch('/vcs/analyze_code/', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token for Django
+                                    },
+                                    body: JSON.stringify({ code: codeContent })
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Failed to analyze the code');
+                                    }
+                                    return response.json();
+                                })
+                                .then(result => {
+                                    console.log('Analysis Result:', result);
+                                    // Hide loading animation and show result
+                                    analysisLoading.classList.add('hidden');
+                                    analysisResultContent.classList.remove('hidden');
+                                    analysisResultContent.innerHTML = result.analysis || '<p class="text-center text-lg text-gray-700 dark:text-gray-400">No analysis result available.</p>';
+                                    Prism.highlightAll(); // Ensure Prism highlights the new content
+                                })
+                                .catch(error => {
+                                    // Hide loading animation and show error
+                                    analysisLoading.classList.add('hidden');
+                                    analysisResultContent.classList.remove('hidden');
+                                    analysisResultContent.innerHTML = `<p class="text-red-500 text-center">Error: ${error.message}</p>`;
+                                });
+                            });
                         }
                     })
                     .catch(error => {

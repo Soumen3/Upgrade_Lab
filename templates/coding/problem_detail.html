@@ -73,7 +73,7 @@
                             <option value="java" {% if selected_language == 'java' %}selected{% endif %}>Java</option>
                             <option value="cpp" {% if selected_language == 'cpp' %}selected{% endif %}>C++</option>
                             <option value="c" {% if selected_language == 'c' %}selected{% endif %}>C</option>
-                            <option value="csharp" {% if selected_language == 'csharp' %}selected{% endif %}>C#</option>
+                            {% comment %} <option value="csharp" {% if selected_language == 'csharp' %}selected{% endif %}>C#</option> {% endcomment %}
                         </select>
                         <!-- Run and Submit Buttons on the Left -->
                         <div class="flex gap-2">
